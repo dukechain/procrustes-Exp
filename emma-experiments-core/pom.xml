@@ -11,6 +11,12 @@
     <artifactId>emma-experiments-core</artifactId>
     <name>Еmma Еxperiments (Core)</name>
 
+    <properties>
+        <!-- Scala -->
+        <scala.version>2.10.3</scala.version>
+        <scala.tools.version>2.10</scala.tools.version>
+    </properties>
+
     <dependencies>
         <!-- Logging -->
         <dependency>
@@ -24,6 +30,11 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-log4j12</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.7</version>
         </dependency>
     </dependencies>
 

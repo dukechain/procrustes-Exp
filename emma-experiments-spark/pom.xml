@@ -11,7 +11,35 @@
     <artifactId>emma-experiments-spark</artifactId>
     <name>Еmma Еxperiments (Spark)</name>
 
+    <properties>
+        <!-- Scala -->
+        <scala.version>2.10.2</scala.version>
+        <scala.tools.version>2.10</scala.tools.version>
+
+        <!-- Spark -->
+        <spark.version>1.1.0</spark.version>
+        <spark.scala.tools.version>2.10</spark.scala.tools.version>
+        <spark.mllib.version>1.1.0</spark.mllib.version>
+    </properties>
+
     <dependencies>
+        <!-- Scala -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-reflect</artifactId>
+            <version>${scala.version}</version>
+        </dependency>
+
         <!-- Emma Experiments -->
         <dependency>
             <groupId>eu.stratosphere</groupId>
@@ -26,10 +54,14 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_${spark.scala.tools.version}</artifactId>
+            <version>${spark.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_2.10</artifactId>
+            <version>${spark.mllib.version}</version>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Guava -->

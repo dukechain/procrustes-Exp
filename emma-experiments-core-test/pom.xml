@@ -11,6 +11,13 @@
     <artifactId>emma-experiments-core-test</artifactId>
     <name>Еmma Еxperiments (Core Test)</name>
 
+    <properties>
+        <!-- Scala -->
+        <scala.version>2.10.3</scala.version>
+        <scala.tools.version>2.10</scala.tools.version>
+        <scalatest.version>2.1.6</scalatest.version>
+    </properties>
+
     <dependencies>
         <!-- Logging -->
         <dependency>
@@ -33,11 +40,11 @@
             <version>${junit.version}</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>org.scalatest</groupId>
             <artifactId>scalatest_${scala.tools.version}</artifactId>
             <version>${scalatest.version}</version>
-            <scope>provided</scope>
         </dependency>
     </dependencies>
 

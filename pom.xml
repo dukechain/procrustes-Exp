@@ -33,8 +33,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
         <!-- Scala -->
-        <scala.version>2.10.2</scala.version>
-        <scala.tools.version>2.10</scala.tools.version>
+        <scala.version>2.11.0</scala.version>
+        <scala.tools.version>2.11</scala.tools.version>
 
         <!-- Spark -->
         <spark.version>1.1.0</spark.version>
@@ -79,58 +79,30 @@
                 <scope>test</scope>
             </dependency>
 
-            <!-- Scala -->
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-library</artifactId>
-                <version>${scala.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-compiler</artifactId>
-                <version>${scala.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.scala-lang</groupId>
-                <artifactId>scala-reflect</artifactId>
-                <version>${scala.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
-            <!-- Spark -->
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-core_${spark.scala.tools.version}</artifactId>
-                <version>${spark.version}</version>
-                <scope>provided</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.spark</groupId>
-                <artifactId>spark-mllib_2.10</artifactId>
-                <version>${spark.mllib.version}</version>
-                <scope>provided</scope>
-            </dependency>
-
             <!-- Logging -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
+                <!--<scope>provided</scope>-->
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>1.7.7</version>
+                <!--<scope>provided</scope>-->
             </dependency>
 
             <!-- Testing -->
@@ -171,20 +143,6 @@
     </dependencyManagement>
 
     <dependencies>
-        <!-- Scala -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-reflect</artifactId>
-        </dependency>
-
         <!-- Testing -->
         <dependency>
             <groupId>junit</groupId>
@@ -318,7 +276,7 @@
                                 <goal>shade</goal>
                             </goals>
                             <configuration>
-                                <minimizeJar>true</minimizeJar>
+                                <minimizeJar>false</minimizeJar>
                                 <filters>
                                     <filter>
                                         <artifact>*:*</artifact>
@@ -347,6 +305,7 @@
         <module>emma-experiments-core</module>
         <module>emma-experiments-core-test</module>
         <module>emma-experiments-spark</module>
+        <module>emma-experiments-aura</module>
     </modules>
 
 </project>
