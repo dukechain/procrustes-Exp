@@ -1,0 +1,5 @@
+# ssh options
+host_name=cloud-11.dima.tu-berlin.de
+host_user=username
+host_group=hadoop
+host_dest=/share/hadoop/peel

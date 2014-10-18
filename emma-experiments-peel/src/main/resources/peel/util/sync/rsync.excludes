@@ -1,0 +1,8 @@
+.buildpath
+.project
+.git*
+datasets
+log
+results
+systems
+util

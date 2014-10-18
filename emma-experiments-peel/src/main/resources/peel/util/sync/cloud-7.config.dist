@@ -1,0 +1,5 @@
+# ssh options
+host_name=cloud-7.dima.tu-berlin.de
+host_user=username
+host_group=users
+host_dest=/share/journalpaper/peel
