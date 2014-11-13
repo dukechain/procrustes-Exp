@@ -5,13 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>eu.stratosphere</groupId>
-    <artifactId>emma-experiments</artifactId>
+    <artifactId>procrustes</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>Emma Experiments</name>
-    <description>Emma Experiments main project</description>
-    <url>https://github.com/citlab/emma-experiments</url>
+    <name>procrustes</name>
+    <url>https://github.com/citlab/procrustes</url>
 
     <properties>
         <!-- Common -->
@@ -49,34 +48,32 @@
 
     <dependencyManagement>
         <dependencies>
-            <!-- Emma Experiments -->
+            <!-- procrustes -->
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>emma-experiments-core</artifactId>
+                <artifactId>procrustes-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>eu.stratosphere</groupId>
+                <artifactId>procrustes-core-test</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>eu.stratosphere</groupId>
+                <artifactId>procrustes-datagen</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>${project.groupId}</groupId>
-                <artifactId>emma-experiments-spark</artifactId>
+                <artifactId>procrustes-spark</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>
                 <groupId>eu.stratosphere</groupId>
-                <artifactId>emma-experiments-core-test</artifactId>
+                <artifactId>procrustes-flink</artifactId>
                 <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>eu.stratosphere</groupId>
-                <artifactId>emma-experiments-aura</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>eu.stratosphere</groupId>
-                <artifactId>emma-experiments-flink</artifactId>
-                <version>${project.version}</version>
-                <scope>test</scope>
             </dependency>
 
             <!-- Logging -->
@@ -84,19 +81,16 @@
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
-                <scope>provided</scope>
             </dependency>
 
             <!-- Testing -->
@@ -241,7 +235,7 @@
                     <dependencies>
                         <dependency>
                             <groupId>${project.groupId}</groupId>
-                            <artifactId>emma-experiments-core</artifactId>
+                            <artifactId>procrustes-core</artifactId>
                             <version>${project.version}</version>
                         </dependency>
                     </dependencies>
@@ -285,11 +279,12 @@
     </build>
 
     <modules>
-        <module>emma-experiments-core</module>
-        <module>emma-experiments-core-test</module>
-        <module>emma-experiments-spark</module>
-        <module>emma-experiments-flink</module>
-        <module>emma-experiments-aura</module>
+        <module>procrustes-core</module>
+        <module>procrustes-core-test</module>
+        <module>procrustes-datagen</module>
+        <module>procrustes-dist</module>
+        <module>procrustes-flink</module>
+        <module>procrustes-spark</module>
     </modules>
 
 </project>
