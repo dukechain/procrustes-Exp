@@ -343,7 +343,6 @@
     <modules>
         <module>emma-experiments-core</module>
         <module>emma-experiments-core-test</module>
-        <module>emma-experiments-dist</module>
         <module>emma-experiments-spark</module>
     </modules>
 
