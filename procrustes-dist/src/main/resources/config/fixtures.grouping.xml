@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Custom Systems -->
+    <import resource="fixtures.systems.xml"/>
+
+    <!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
+
+    <bean id="datagen.spark.groups" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+        <constructor-arg name="runner" ref="spark-1.1.0"/>
+        <constructor-arg name="command">
+            <value><![CDATA[
+            --class eu.stratosphere.procrustes.datagen.spark.SparkTupleGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4793490 10 ${system.hadoop-2.path.input}/groups
+            ]]></value>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <bean id="dataset.groups" parent="dataset.generated.hdfs-2">
+        <constructor-arg name="src" ref="datagen.spark.groups"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/groups"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- grouping output -->
+    <bean id="experiment.output.hdfs.groups" parent="experiment.output.hdfs-2">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/aggregated_groups"/>
+    </bean>
+
+    <bean id="experiment.spark.groupReduce" parent="experiment.spark-1.1.0" abstract="true">
+        <constructor-arg name="command">
+            <!-- spark command that is used: spark-submit -->
+            <value>--class eu.stratosphere.procrustes.experiments.spark.grouping.Grouping ${app.path.jobs}/procrustes-spark-1.0-SNAPSHOT.jar groupReduce ${system.hadoop-2.path.input}/groups ${system.hadoop-2.path.output}/aggregated_groups ${system.spark.config.defaults.spark.master}</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+            <ref bean="dataset.groups"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.groups"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="experiment.flink.groupReduce" parent="experiment.flink-0.7.0" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.flink.grouping.Grouping ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar groupReduce ${system.hadoop-2.path.input}/groups ${system.hadoop-2.path.input}/aggregated_groups</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+            <ref bean="dataset.groups"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.groups"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="experiment.spark.reduce" parent="experiment.spark-1.1.0" abstract="true">
+        <constructor-arg name="command">
+            <!-- spark command that is used: spark-submit -->
+            <value>--class eu.stratosphere.procrustes.experiments.spark.grouping.Grouping ${app.path.jobs}/procrustes-spark-1.0-SNAPSHOT.jar reduce ${system.hadoop-2.path.input}/groups ${system.hadoop-2.path.output}/aggregated_groups ${system.spark.config.defaults.spark.master}</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+            <ref bean="dataset.groups"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.groups"/>
+        </constructor-arg>
+    </bean>
+
+    <bean id="experiment.flink.reduce" parent="experiment.flink-0.7.0" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.flink.grouping.Grouping ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar reduce ${system.hadoop-2.path.input}/groups ${system.hadoop-2.path.input}/aggregated_groups</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+            <ref bean="dataset.groups"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.groups"/>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+    <!-- fixtures for local development and testing -->
+    <bean id="groupReduce.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="experiment.flink.reduce">
+                    <constructor-arg name="name" value="flink.single-run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.reduce">
+                    <constructor-arg name="name" value="spark.single-run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.groupReduce">
+                    <constructor-arg name="name" value="flink.group.single-run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.groupReduce">
+                    <constructor-arg name="name" value="spark.group.single-run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- reduce fixtures for wally -->
+    <bean id="reduce.wally" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <!-- 10 nodes -->
+                <bean parent="experiment.flink.reduce">
+                    <constructor-arg name="name" value="flink.dop80"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.010}
+                            system.default.config.parallelism.total = 80
+                            system.flink.config.yaml.parallelization.degree.default = 20
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.reduce">
+                    <constructor-arg name="name" value="spark.dop80"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.010}
+                            system.default.config.parallelism.total = 80
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 20 nodes -->
+                <bean parent="experiment.flink.reduce">
+                    <constructor-arg name="name" value="flink.dop160"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.020}
+                            system.default.config.parallelism.total = 160
+                            system.flink.config.yaml.parallelization.degree.default = 40
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.reduce">
+                    <constructor-arg name="name" value="spark.dop160"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.020}
+                            system.default.config.parallelism.total = 160
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 40 nodes -->
+
+                <bean parent="experiment.flink.reduce">
+                    <constructor-arg name="name" value="flink.dop320"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.040}
+                            system.default.config.parallelism.total = 320
+                            system.flink.config.yaml.parallelization.degree.default = 80
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.reduce">
+                    <constructor-arg name="name" value="spark.dop320"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.040}
+                            system.default.config.parallelism.total = 320
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 80 nodes -->
+
+                <bean parent="experiment.flink.reduce">
+                    <constructor-arg name="name" value="flink.dop640"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.080}
+                            system.default.config.parallelism.total = 640
+                            system.flink.config.yaml.parallelization.degree.default = 160
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.reduce">
+                    <constructor-arg name="name" value="spark.dop640"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 1800
+                            system.default.config.slaves = ${system.default.config.wallies.080}
+                            system.default.config.parallelism.total = 640
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- groupReduce fixtures for wally -->
+    <bean id="groupReduce.wally" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <!-- 10 nodes -->
+                <bean parent="experiment.flink.groupReduce">
+                    <constructor-arg name="name" value="flink.dop80"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.010}
+                            system.default.config.parallelism.total = 80
+                            system.flink.config.yaml.parallelization.degree.default = 26
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.groupReduce">
+                    <constructor-arg name="name" value="spark.dop80"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.010}
+                            system.default.config.parallelism.total = 80
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 20 nodes -->
+                <bean parent="experiment.flink.groupReduce">
+                    <constructor-arg name="name" value="flink.dop160"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.020}
+                            system.default.config.parallelism.total = 160
+                            system.flink.config.yaml.parallelization.degree.default = 53
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.groupReduce">
+                    <constructor-arg name="name" value="spark.dop160"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.020}
+                            system.default.config.parallelism.total = 160
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 40 nodes -->
+                <bean parent="experiment.flink.groupReduce">
+                    <constructor-arg name="name" value="flink.dop320"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.040}
+                            system.default.config.parallelism.total = 320
+                            system.flink.config.yaml.parallelization.degree.default = 106
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.groupReduce">
+                    <constructor-arg name="name" value="spark.dop320"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.040}
+                            system.default.config.parallelism.total = 320
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 80 nodes -->
+                <bean parent="experiment.flink.groupReduce">
+                    <constructor-arg name="name" value="flink.dop640"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.080}
+                            system.default.config.parallelism.total = 640
+                            system.flink.config.yaml.parallelization.degree.default = 213
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.spark.groupReduce">
+                    <constructor-arg name="name" value="spark.dop640"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 2400
+                            system.default.config.slaves = ${system.default.config.wallies.080}
+                            system.default.config.parallelism.total = 640
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>

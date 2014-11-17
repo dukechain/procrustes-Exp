@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!--************************************************************************
+    * Custom Systems
+    *************************************************************************-->
+
+    <!-- Use lifespan "PROVIDED" if you want to start the systems manually   -->
+    <!-- Use lifespan "SUITE" if you want PEEL to deploy to start them       -->
+
+    <!-- Hadoop Distributed File System (overridden 'hdfs-2' bean) -->
+    <bean id="hdfs-2" class="eu.stratosphere.peel.extensions.hadoop.beans.system.HDFS2" parent="system">
+        <constructor-arg name="version" value="2.4.1"/>
+        <constructor-arg name="lifespan" value="SUITE"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Flink (overridden 'flink' bean that depends on 'hdfs-2') -->
+    <bean id="flink" class="eu.stratosphere.peel.extensions.flink.beans.system.Flink" parent="system" abstract="true">
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
+                <ref bean="hdfs-2"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Flink (version 0.7.0) -->
+    <bean id="flink-0.7.0" parent="flink">
+        <constructor-arg name="version" value="0.7.0"/>
+    </bean>
+
+    <!-- Aura (overridden spark bean that depends on 'hdfs-2' -->
+    <bean id="aura" class="eu.stratosphere.peel.extensions.aura.beans.system.Aura" parent="system" abstract="true">
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
+                <ref bean="zookeeper"/>
+                <ref bean="hdfs-2"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Spark (overridden spark bean that depends on 'hdfs-2' -->
+    <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system" abstract="true">
+        <constructor-arg name="lifespan" value="EXPERIMENT"/>
+        <constructor-arg name="dependencies">
+            <set value-type="eu.stratosphere.peel.core.beans.system.System">
+                <ref bean="hdfs-2"/>
+            </set>
+        </constructor-arg>
+    </bean>
+
+    <!-- Spark (version 1.1) -->
+    <bean id="spark-1.1.0" parent="spark">
+        <constructor-arg name="version" value="1.1.0"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- Experiment beans -->
+    <bean id="experiment.flink-0.7.0" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
+        <constructor-arg name="runner" ref="flink-0.7.0"/>
+        <constructor-arg name="runs" value="7"/>
+    </bean>
+
+    <bean id="experiment.spark-1.1.0" class="eu.stratosphere.peel.extensions.spark.beans.experiment.SparkExperiment" abstract="true">
+        <constructor-arg name="runner" ref="spark-1.1.0"/>
+        <constructor-arg name="runs" value="7"/>
+    </bean>
+
+</beans>
