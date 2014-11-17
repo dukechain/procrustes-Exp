@@ -28,7 +28,8 @@ object KMeans {
     // argument names
     val KEY_K = "k"
     val KEY_MAXITER = "maxiter"
-    val KEY_INPUT = "input"
+    val KEY_POINTS = "points"
+    val KEY_CENTERS = "centers"
     val KEY_OUTPUT = "output"
   }
 
@@ -43,11 +44,16 @@ object KMeans {
       super.setup(parser)
 
       // add arguments
-      parser.addArgument(Command.KEY_INPUT)
+      parser.addArgument(Command.KEY_POINTS)
         .`type`[String](classOf[String])
-        .dest(Command.KEY_INPUT)
+        .dest(Command.KEY_POINTS)
         .metavar("INPUT")
-        .help("input data")
+        .help("input points data")
+      parser.addArgument(Command.KEY_CENTERS)
+        .`type`[String](classOf[String])
+        .dest(Command.KEY_CENTERS)
+        .metavar("INPUT")
+        .help("input centroids data")
       parser.addArgument(Command.KEY_K)
         .`type`[Int](classOf[Int])
         .dest(Command.KEY_K)
@@ -67,28 +73,32 @@ object KMeans {
   }
 
   def main(args: Array[String]): Unit = {
-    if (args.length != 5) {
-      throw new RuntimeException("Arguments count != 5")
+    if (args.length != 7) {
+      throw new RuntimeException("Arguments count != 7")
     }
 
     val K = args(0).toInt
     val maxIter = args(1).toInt
-    val input = args(2).toString
-    val output = args(3).toString
-    val master = args(4).toString
+    val points = args(2)
+    val centroids = args(3)
+    val output = args(4)
+    val noCache = args(5).toBoolean
+    val master = args(6)
 
-    val generator = new KMeans(K, maxIter, input, output, master)
+    val generator = new KMeans(K, maxIter, points, centroids, output, noCache, master)
     generator.run()
   }
 }
 
-class KMeans(val K: Int, val maxIter: Int, val input: String, val output: String, val master: String) extends Algorithm(master) {
+class KMeans(val K: Int, val maxIter: Int, val pointsPath: String, val centroidsPath: String, val output: String, val cache: Boolean, val master: String) extends Algorithm(master) {
 
   def this(ns: Namespace) = this(
     ns.get[Int](KMeans.Command.KEY_K),
     ns.get[Int](KMeans.Command.KEY_MAXITER),
-    ns.get[String](KMeans.Command.KEY_INPUT),
+    ns.get[String](KMeans.Command.KEY_POINTS),
+    ns.get[String](KMeans.Command.KEY_CENTERS),
     ns.get[String](KMeans.Command.KEY_OUTPUT),
+    false,
     ns.get[String](Algorithm.Command.KEY_MASTER))
 
   import org.apache.spark.{SparkConf, SparkContext}
@@ -103,20 +113,29 @@ class KMeans(val K: Int, val maxIter: Int, val input: String, val output: String
     var tmpDist = Double.PositiveInfinity
     var iter = 0
 
-    val data = sc.textFile(input).map { line =>
+    val data = sc.textFile(pointsPath).map { line =>
       val l = line.split(',')
       (l(0).toInt, Vector(l.drop(1).map(_.toDouble)))
     }
-    data.cache() // cache points
+
+    if (cache) {
+      data.cache() // cache points
+    }
+
+    val centers = sc.textFile(centroidsPath).map { line =>
+      val l = line.split(',')
+      (l(0).toInt, Vector(l.drop(1).map(_.toDouble)))
+    }.collect()
 
     // initialize centroids
-    var oldCentroids = sc.broadcast(data.takeSample(withReplacement = false, num = K).map(c => c._2).zipWithIndex.map(c => (c._2, c._1)))
+    //var oldCentroids = sc.broadcast(data.takeSample(withReplacement = false, num = K).map(c => c._2).zipWithIndex.map(c => (c._2, c._1)))
+    var oldCentroids = sc.broadcast(centers)
     var newCentroids = oldCentroids
     // initialize the closest cluster for every point
     var closest = data.map(p => (KMeans.closestPoint(p._2, newCentroids.value), p._2)).cache()
 
     // MAIN LOOP
-    while (tmpDist > KMeans.EPSILON && iter < maxIter) {
+    while (/*tmpDist > KMeans.EPSILON && */iter < maxIter) {
       // compute new cluster centers
       newCentroids = sc.broadcast(closest
         .mapValues(x => (x, 1))
@@ -128,7 +147,6 @@ class KMeans(val K: Int, val maxIter: Int, val input: String, val output: String
       tmpDist = newCentroids.value.map(_._2).zip(oldCentroids.value.map(_._2))
         .map(ctr => ctr._1.squaredDist(ctr._2)) // compute pairwise dist between old and new
         .foldLeft(0.0)((a, b) => a + b) // compute sum over all
-
 
       // reassign points to cluster
       closest = data.map(p => (KMeans.closestPoint(p._2, newCentroids.value), p._2)).cache()
