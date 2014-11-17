@@ -32,26 +32,14 @@
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
-        <!-- Scala -->
-        <scala.version>2.11.0</scala.version>
-        <scala.tools.version>2.11</scala.tools.version>
-
-        <!-- Spark -->
-        <spark.version>1.1.0</spark.version>
-        <spark.scala.tools.version>2.10</spark.scala.tools.version>
-        <spark.mllib.version>1.1.0</spark.mllib.version>
-
-        <!-- Flink -->
-        <flink.version>0.6.1</flink.version>
-
-        <!-- Logging -->
-        <log4j.version>1.2.17</log4j.version>
-        <slf4j.version>1.7.5</slf4j.version>
-
         <!-- Testing -->
         <junit.version>4.11</junit.version>
         <scalatest.version>2.1.6</scalatest.version>
         <specs2.version>2.3.10</specs2.version>
+
+        <!-- Logging -->
+        <log4j.version>1.2.17</log4j.version>
+        <slf4j.version>1.7.5</slf4j.version>
 
         <!-- Other dependencies -->
         <argparse4j.version>0.4.3</argparse4j.version>
@@ -78,31 +66,37 @@
                 <version>${project.version}</version>
                 <scope>test</scope>
             </dependency>
+            <dependency>
+                <groupId>eu.stratosphere</groupId>
+                <artifactId>emma-experiments-aura</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>eu.stratosphere</groupId>
+                <artifactId>emma-experiments-flink</artifactId>
+                <version>${project.version}</version>
+                <scope>test</scope>
+            </dependency>
 
             <!-- Logging -->
             <dependency>
                 <groupId>log4j</groupId>
                 <artifactId>log4j</artifactId>
                 <version>${log4j.version}</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-api</artifactId>
                 <version>${slf4j.version}</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
                 <artifactId>slf4j-log4j12</artifactId>
                 <version>${slf4j.version}</version>
-                <!--<scope>provided</scope>-->
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>1.7.7</version>
-                <!--<scope>provided</scope>-->
+                <scope>provided</scope>
             </dependency>
 
             <!-- Testing -->
@@ -110,12 +104,6 @@
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
                 <version>${junit.version}</version>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.scalatest</groupId>
-                <artifactId>scalatest_${scala.tools.version}</artifactId>
-                <version>${scalatest.version}</version>
                 <scope>test</scope>
             </dependency>
 
@@ -147,10 +135,6 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.scalatest</groupId>
-            <artifactId>scalatest_${scala.tools.version}</artifactId>
         </dependency>
 
         <!-- Arguments parsing -->
@@ -286,8 +270,7 @@
                                     </filter>
                                 </filters>
                                 <transformers>
-                                    <transformer
-                                            implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                         <manifestEntries>
                                             <Version>${project.version}</Version>
                                         </manifestEntries>
@@ -305,6 +288,7 @@
         <module>emma-experiments-core</module>
         <module>emma-experiments-core-test</module>
         <module>emma-experiments-spark</module>
+        <module>emma-experiments-flink</module>
         <module>emma-experiments-aura</module>
     </modules>
 
