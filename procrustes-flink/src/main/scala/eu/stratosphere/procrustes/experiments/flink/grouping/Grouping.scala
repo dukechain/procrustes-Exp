@@ -8,7 +8,7 @@ object Grouping {
   def run(variant: String, inputPath: String, outputPath: String) = {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    val data = env.readCsvFile[(Int, String, Int)](inputPath, fieldDelimiter = ',')
+    val data = env.readCsvFile[(Int, String, Int)](inputPath, fieldDelimiter = ",")
     val aggregates =
       if (variant == "reduce") {
         data.groupBy(_._1).reduce((a, b) => (a._1, a._2, Math.min(a._3, b._3)))

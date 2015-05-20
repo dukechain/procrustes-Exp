@@ -11,14 +11,14 @@
     *************************************************************************-->
 
     <bean id="datagen.spark.clusters" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
-        <constructor-arg name="runner" ref="spark-1.1.0"/>
+        <constructor-arg name="runner" ref="spark-1.3.1"/>
         <constructor-arg name="command">
-            <value>--class eu.stratosphere.procrustes.datagen.spark.SparkClusterGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4793490 ${app.path.config}/clusters-D3-K3.csv ${system.hadoop-2.path.input}/points</value>
+            <value>--class eu.stratosphere.procrustes.datagen.spark.SparkClusterGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4793 ${app.path.config}/clusters-D3-K3.csv ${system.hadoop-2.path.input}/points</value>
         </constructor-arg>
     </bean>
 
     <bean id="datagen.spark.clustercenters" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
-        <constructor-arg name="runner" ref="spark-1.1.0"/>
+        <constructor-arg name="runner" ref="spark-1.3.1"/>
         <constructor-arg name="command">
             <value>--class eu.stratosphere.procrustes.datagen.spark.SparkClusterGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 3 ${app.path.config}/clusters-D3-K3.csv ${system.hadoop-2.path.input}/clusters</value>
         </constructor-arg>
@@ -47,7 +47,7 @@
     </bean>
 
     <!-- k-means experiment (flink) -->
-    <bean id="experiment.flink.kmeans" parent="experiment.flink-0.7.0" abstract="true">
+    <bean id="experiment.flink.kmeans" parent="experiment.flink-0.8.0" abstract="true">
         <constructor-arg name="command">
             <value>-v -c eu.stratosphere.procrustes.experiments.flink.kmeans.Kmeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 5</value>
         </constructor-arg>
@@ -63,7 +63,7 @@
     </bean>
 
     <!-- k-means experiment (spark) -->
-    <bean id="experiment.spark.kmeans" parent="experiment.spark-1.1.0" abstract="true">
+    <bean id="experiment.spark.kmeans" parent="experiment.spark-1.3.1" abstract="true">
         <constructor-arg name="command">
             <!-- spark command that is used: spark-submit -->
             <value>--class eu.stratosphere.procrustes.experiments.spark.kmeans.KMeans ${app.path.jobs}/procrustes-spark-1.0-SNAPSHOT.jar 3 5 ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans true ${system.spark.config.defaults.spark.master}</value>

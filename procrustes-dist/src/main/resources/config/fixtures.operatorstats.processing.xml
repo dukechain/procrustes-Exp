@@ -1,0 +1,773 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans">
+
+	<!--************************************************************************
+    	* Custom Systems
+    	*************************************************************************-->
+	<import resource="fixtures.systems.xml"/>
+	
+	<!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
+	<bean id="datagen.spark.int.default" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4882813 ${system.hadoop-2.path.input}/operatorstats/default </value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="datagen.spark.int.5.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 32 4882813 ${system.hadoop-2.path.input}/operatorstats/5 </value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="datagen.spark.int.25.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 160 4882813 ${system.hadoop-2.path.input}/operatorstats/25 </value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="datagen.spark.int.50.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/50 </value>
+		</constructor-arg>
+	</bean>
+
+	<bean id="datagen.spark.int.100.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 640 4882813 ${system.hadoop-2.path.input}/operatorstats/100 </value>
+		</constructor-arg>
+	</bean>
+
+	<!--************************************************************************
+    * Data Sets -> Number of nodes and distribution determines the sets
+    *************************************************************************-->
+	<bean id="dataset.int.default" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.default"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/default"/>
+	</bean>
+
+	<bean id="dataset.int.5.Gb" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.5.Gb"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/5"/>
+	</bean>
+
+	<bean id="dataset.int.25.Gb" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.25.Gb"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/25"/>
+	</bean>
+
+	<bean id="dataset.int.50.Gb" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.50.Gb"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/50"/>
+	</bean>
+
+	<bean id="dataset.int.100.Gb" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.100.Gb"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/100"/>
+	</bean>
+	<!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+	<!-- Experiment output -->
+	<bean id="experiment.output.hdfs.operator.stats" parent="experiment.output.hdfs-2">
+		<constructor-arg name="path" value="${system.hadoop-2.path.output}/operatorstats/output"/>
+	</bean>
+
+	<!--No accumulators-->
+	<bean id="experiment.operator.stats.none.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default none</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.default"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.none.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 none</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.none.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 none</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.none.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 none</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.none.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 none</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--Min / Max-->
+	<bean id="experiment.operator.stats.minmax.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 minmax</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.minmax.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 minmax</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.minmax.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 minmax</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.minmax.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 minmax</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--Linear Counting -->
+	<bean id="experiment.operator.stats.linearc.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 linearc</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.linearc.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 linearc</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.linearc.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 linearc</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.linearc.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 linearc</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--HyperLogLog-->
+	<bean id="experiment.operator.stats.hyperloglog.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default hyperloglog</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.default"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.hyperloglog.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 hyperloglog</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.hyperloglog.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 hyperloglog</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.hyperloglog.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 hyperloglog</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.hyperloglog.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 hyperloglog</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--Lossy Counting-->
+	<bean id="experiment.operator.stats.lossy.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default lossy</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.default"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.lossy.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 lossy</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.lossy.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 lossy</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.lossy.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 lossy</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+
+	<bean id="experiment.operator.stats.lossy.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 lossy</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--Count Min Sketch-->
+	<bean id="experiment.operator.stats.countmin.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 countmin</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.5.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.countmin.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 countmin</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.25.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.countmin.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 countmin</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.50.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<bean id="experiment.operator.stats.countmin.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 countmin</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.100.Gb"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+	<!-- Fixtures for Local Testing -->
+
+	<bean id="processing.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.operator.stats.none.default">
+					<constructor-arg name="name" value="flink.operator.stats.none"/>
+					<constructor-arg name="config">
+						<value/>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.hyperloglog.default">
+					<constructor-arg name="name" value="flink.operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value/>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.lossy.default">
+					<constructor-arg name="name" value="flink.operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value/>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for Cloud 7 -->
+
+	<!-- Fixtures for testing processing of 5Gb of data using 2 nodes-->
+	<bean id="processing.5" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.operator.stats.none.5">
+					<constructor-arg name="name" value="flink.operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.minmax.5">
+					<constructor-arg name="name" value="flink.operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.linearc.5">
+					<constructor-arg name="name" value="flink.operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.hyperloglog.5">
+					<constructor-arg name="name" value="flink.operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.lossy.5">
+					<constructor-arg name="name" value="flink.operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.countmin.5">
+					<constructor-arg name="name" value="flink.operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 16
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 25Gb of data using 10 nodes-->
+	<bean id="processing.25" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.operator.stats.none.25">
+					<constructor-arg name="name" value="flink.operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 160
+						system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.minmax.25">
+					<constructor-arg name="name" value="flink.operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.linearc.25">
+					<constructor-arg name="name" value="flink.operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.hyperloglog.25">
+					<constructor-arg name="name" value="flink.operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.lossy.25">
+					<constructor-arg name="name" value="flink.operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.countmin.25">
+					<constructor-arg name="name" value="flink.operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 50Gb of data using 20 nodes-->
+	<bean id="processing.50" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.operator.stats.none.50">
+					<constructor-arg name="name" value="flink.operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.minmax.50">
+					<constructor-arg name="name" value="flink.operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 320
+						system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.linearc.50">
+					<constructor-arg name="name" value="flink.operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 320
+						system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.hyperloglog.50">
+					<constructor-arg name="name" value="flink.operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 320
+						system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.lossy.50">
+					<constructor-arg name="name" value="flink.operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 320
+						system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.countmin.50">
+					<constructor-arg name="name" value="flink.operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+						experiment.timeout = 1800
+						system.default.config.parallelism.total = 320
+						system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 100Gb of data using 40 nodes -->
+	<bean id="processing.100" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.operator.stats.none.100">
+					<constructor-arg name="name" value="flink.operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.minmax.100">
+					<constructor-arg name="name" value="flink.operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.linearc.100">
+					<constructor-arg name="name" value="flink.operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.hyperloglog.100">
+					<constructor-arg name="name" value="flink.operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.lossy.100">
+					<constructor-arg name="name" value="flink.operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.operator.stats.countmin.100">
+					<constructor-arg name="name" value="flink.operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>
