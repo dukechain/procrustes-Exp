@@ -22,7 +22,7 @@ object Distributions {
 
   case class Pareto(a: Double) extends Distribution {
     def sample(rand: RanHash) = {
-      Math.round(rand.nextPareto(a))
+      rand.nextPareto(a)
     }
   }
 }

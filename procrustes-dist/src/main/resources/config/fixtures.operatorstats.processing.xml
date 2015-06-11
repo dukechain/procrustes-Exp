@@ -13,7 +13,7 @@
 	<bean id="datagen.spark.int.default" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4882813 ${system.hadoop-2.path.input}/operatorstats/default </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4882813 5 ${system.hadoop-2.path.input}/operatorstats/default </value>
 		</constructor-arg>
 	</bean>
 

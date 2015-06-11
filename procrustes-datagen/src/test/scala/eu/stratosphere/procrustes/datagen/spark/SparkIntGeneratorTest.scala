@@ -9,13 +9,13 @@ class SparkIntGeneratorTest {
   @Test def integrationTest() {
     val numTasks = 4
     val tuplesPerTask = 2500
+    val payload = 5
     val keyDist = Pareto(1)
-    // master with given numTasks
     val master = s"local[$numTasks]"
-    // input and output path
-    val output = s"/tmp/input/tupleGeneratorOutput"
+    val output = s"/tmp/input/intGeneratorOutput"
 
-    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, output)
+//    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, payload, output)
+    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, keyDist, payload, output)
     gen.run()
   }
 }

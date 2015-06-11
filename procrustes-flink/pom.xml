@@ -121,7 +121,7 @@
                         <configuration>
                             <transformers>
                                 <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>eu.stratosphere.procrustes.experiments.flink.App</mainClass>
+                                    <mainClass>eu.stratosphere.procrustes.experiments.spark.App</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

@@ -39,7 +39,7 @@
 	<bean id="experiment.flink.operator.stats.none" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				none
 			</value>
@@ -55,7 +55,7 @@
 	<bean id="experiment.flink.operator.stats.minmax" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				minmax
 			</value>
@@ -71,7 +71,7 @@
 	<bean id="experiment.flink.operator.stats.linearc" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				linearc
 			</value>
@@ -85,7 +85,7 @@
 	<bean id="experiment.flink.operator.stats.hyperloglog" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				hyperloglog
 			</value>
@@ -99,7 +99,7 @@
 	<bean id="experiment.flink.operator.stats.lossy" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				lossy
 			</value>
@@ -113,7 +113,7 @@
 	<bean id="experiment.flink.operator.stats.countmin" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
 			<value>${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar
-				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.OperatorStatisticsExperiment
+				--class eu.stratosphere.procrustes.experiments.flink.operatorstats.Processing
 				${system.hadoop-2.path.input}/operatorstats
 				countmin
 			</value>
