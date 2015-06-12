@@ -9,5 +9,8 @@
     <!-- Count Distinct Fixtures -->
     <import resource="fixtures.operatorstats.countD.xml"/>
 
+    <!-- Heavy Hitter Fixtures -->
+    <import resource="fixtures.operatorstats.hitters.xml"/>
+
 
 </beans>

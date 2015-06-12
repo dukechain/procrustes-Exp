@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.List;
 
 public class Frequency {
 
@@ -43,11 +44,9 @@ public class Frequency {
                    .sum(1)
                    .filter(new CountGreaterThan(Math.round(cardinality * fraction)));
 
-        // heavyHitters.print();
+        heavyHitters.writeAsCsv("/home/tamara/Desktop/out");
 
-        heavyHitters.output(new DiscardingOutputFormat<Tuple2<Integer, Integer>>());
-
-        JobExecutionResult result = env.execute("Count Distinct Experiment");
+        JobExecutionResult result = env.execute("Heavy Hitters Experiment");
 
         OperatorStatistics globalStats = result.getAccumulatorResult(ACCUMULATOR_NAME);
         LOG.info("\nGlobal Stats: " + globalStats.toString());
@@ -127,29 +126,39 @@ public class Frequency {
 
     private static long cardinality;
 
+    private static int degreeOfParallelism;
+
+    private static double error = -1;
+
+    private static final int c = 10;
+
     private static double fraction;
 
     private static boolean parseParameters(String[] args) {
 
-        if (args.length == 4) {
+        if (args.length > 4 && args.length <= 5) {
             inputPath = args[0];
             algorithm = args[1];
             cardinality = Long.parseLong(args[2]);
-            fraction = Double.parseDouble(args[3]);
+            degreeOfParallelism = Integer.parseInt(args[3]);
+            fraction = (double) 1 / (c * degreeOfParallelism);
+
+            if (args.length == 5) {
+                error = Double.parseDouble(args[4]);
+                if (error < 0 || error > 1) {
+                    return false;
+                }
+            }
 
             if (!Arrays.asList(ALGORITHMS).contains(algorithm)) {
                 return false;
             } else {
-                if (0 > fraction || 1 < fraction) {
-                    return false;
-                } else {
-                    return true;
-                }
+                return true;
             }
 
         } else {
             LOG.error("Usage: OperatorStatistics <input path> <algorithm> <cardinality> <fraction>");
-            LOG.error("Algorithm options: hyperloglog, linearc");
+            LOG.error("Algorithm options: lossy, countmin");
             LOG.error("0 < fraction < 1");
             System.out.println("Usage: OperatorStatistics <input path> <algorithm> <cardinality> <fraction>");
             System.out.println("Algorithm options: lossy, countmin");
@@ -168,6 +177,10 @@ public class Frequency {
         } else if (algorithm.equals("countmin")) {
             opStatsConfig.collectHeavyHitters = true;
             opStatsConfig.heavyHitterAlgorithm = OperatorStatisticsConfig.HeavyHitterAlgorithm.COUNT_MIN_SKETCH;
+        }
+        opStatsConfig.setHeavyHitterFraction(fraction);
+        if (error != -1) {
+            opStatsConfig.setHeavyHitterFraction(error);
         }
         return opStatsConfig;
     }
