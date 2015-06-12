@@ -15,7 +15,7 @@ class SparkIntGeneratorTest {
     val output = s"/tmp/input/intGeneratorOutput"
 
 //    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, payload, output)
-    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, SparkIntGenerator.parseDist("Uniform(100)"), payload, output)
+    val gen = new SparkIntGenerator(master, numTasks, tuplesPerTask, SparkIntGenerator.parseDist("Uniform[100]"), payload, output)
     gen.run()
   }
 }

@@ -10,10 +10,10 @@
 	<!--************************************************************************
     * Data Generators
     *************************************************************************-->
-	<bean id="datagen.spark.count.distinct.local.10.5" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+	<bean id="datagen.spark.count.distinct.local" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 100000 Uniform1000 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_5</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 100000 "Uniform[10000]" 5 ${system.hadoop-2.path.input}/operatorstats/countD/local</value>
 		</constructor-arg>
 	</bean>
 
@@ -21,43 +21,43 @@
 	<bean id="datagen.spark.count.distinct.10.5" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/countD/10_5</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 Uniform[100000] 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_5</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.count.distinct.10.6" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/countD/10_6</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813  Uniform[1000000] 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_6</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.count.distinct.10.7" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/countD/10_7</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 Uniform[10000000] 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_7</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.count.distinct.10.8" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/countD/10_8</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 Uniform[100000000] 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_8</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.count.distinct.10.9" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/countD/10_9</value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 Uniform[1000000000] 5 ${system.hadoop-2.path.input}/operatorstats/countD/10_9</value>
 		</constructor-arg>
 	</bean>
 	<!--************************************************************************
     * Data Sets -> Number of nodes and distribution determines the sets
     *************************************************************************-->
-	<bean id="dataset.count.distinct.local.10.5" parent="dataset.generated.hdfs-2">
-		<constructor-arg name="src" ref="datagen.spark.count.distinct.local.10.5"/>
-		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/countD/10_5"/>
+	<bean id="dataset.count.distinct.local" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.count.distinct.local"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/countD/local"/>
 	</bean>
 
 
@@ -97,11 +97,11 @@
 	<!--Linear Counting-->
 	<bean id="experiment.count.distinct.linearc.local.10.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>-v -c operator.stats.CountDistinct ${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/10_5 linearc</value>
+			<value>-v -c operator.stats.CountDistinct ${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/local linearc</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.count.distinct.local.10.5"/>
+				<ref bean="dataset.count.distinct.local"/>
 			</set>
 		</constructor-arg>
 		<constructor-arg name="output">
@@ -116,7 +116,7 @@
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.count.distinct.local.10.5"/>
+				<ref bean="dataset.count.distinct.local"/>
 			</set>
 		</constructor-arg>
 		<constructor-arg name="output">
@@ -132,7 +132,7 @@
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.count.distinct.local.10.5"/>
+				<ref bean="dataset.count.distinct.10.5"/>
 			</set>
 		</constructor-arg>
 		<constructor-arg name="output">
@@ -343,7 +343,7 @@
 	</bean>
 
 	<!-- fixtures for experiment on cluster with count distinct 10^7 -->
-	<bean id="count.distinct.10.6" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+	<bean id="count.distinct.10.7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
 		<constructor-arg name="experiments">
 			<list>
 				<bean parent="experiment.count.distinct.linearc.10.7">
@@ -363,7 +363,7 @@
 	</bean>
 
 	<!-- fixtures for experiment on cluster with count distinct 10^8 -->
-	<bean id="count.distinct.10.6" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+	<bean id="count.distinct.10.8" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
 		<constructor-arg name="experiments">
 			<list>
 				<bean parent="experiment.count.distinct.linearc.10.8">
@@ -383,7 +383,7 @@
 	</bean>
 
 	<!-- fixtures for experiment on cluster with count distinct 10^9 -->
-	<bean id="count.distinct.10.6" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+	<bean id="count.distinct.10.9" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
 		<constructor-arg name="experiments">
 			<list>
 				<bean parent="experiment.count.distinct.linearc.10.9">
@@ -392,7 +392,7 @@
 						<value/>
 					</constructor-arg>
 				</bean>
-				<bean parent="experiment.count.distinct.hyperloglog.10.">
+				<bean parent="experiment.count.distinct.hyperloglog.10.9">
 					<constructor-arg name="name" value="hyperloglog"/>
 					<constructor-arg name="config">
 						<value/>

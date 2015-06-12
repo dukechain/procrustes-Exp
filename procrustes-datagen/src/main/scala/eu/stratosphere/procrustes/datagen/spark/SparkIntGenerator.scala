@@ -10,9 +10,9 @@ import scala.util.Random
 object SparkIntGenerator {
 
   object Patterns {
-    val Uniform = "\\bUniform\\(\\d\\)".r
-    val Gaussian = "\\bGaussian\\(\\d,\\d\\)".r
-    val Pareto = "\\bPareto\\(\\d\\)".r
+    val Uniform = """Uniform\[(\d+)\]""".r
+    val Gaussian = """Gaussian\[(\d+),(\d+)\]""".r
+    val Pareto = """Pareto\[(\d+)\]""".r
   }
   object Command {
     // argument names
