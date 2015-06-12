@@ -63,6 +63,11 @@
         </dependency>
         <dependency>
             <groupId>eu.stratosphere</groupId>
+            <artifactId>peel-analyser</artifactId>
+            <version>${peel.version}</version>
+        </dependency>        
+        <dependency>
+            <groupId>eu.stratosphere</groupId>
             <artifactId>peel-extensions</artifactId>
             <version>${peel.version}</version>
         </dependency>
