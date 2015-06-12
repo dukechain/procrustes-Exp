@@ -13,35 +13,35 @@
 	<bean id="datagen.spark.int.default" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4882813 5 ${system.hadoop-2.path.input}/operatorstats/default </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 4882813 "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/default </value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.int.5.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 32 4882813 ${system.hadoop-2.path.input}/operatorstats/5 </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 32 4882813 "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/5</value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.int.25.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 160 4882813 ${system.hadoop-2.path.input}/operatorstats/25 </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 160 4882813 "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/25 </value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.int.50.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 ${system.hadoop-2.path.input}/operatorstats/50 </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 320 4882813 "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/50 </value>
 		</constructor-arg>
 	</bean>
 
 	<bean id="datagen.spark.int.100.Gb" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
 		<constructor-arg name="runner" ref="spark-1.3.1"/>
 		<constructor-arg name="command">
-			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 640 4882813 ${system.hadoop-2.path.input}/operatorstats/100 </value>
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} 640 4882813 "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/100 </value>
 		</constructor-arg>
 	</bean>
 
@@ -83,7 +83,7 @@
 	<!--No accumulators-->
 	<bean id="experiment.operator.stats.none.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default none</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default none</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -97,7 +97,7 @@
 
 	<bean id="experiment.operator.stats.none.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 none</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 none</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -111,7 +111,7 @@
 
 	<bean id="experiment.operator.stats.none.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 none</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 none</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -125,7 +125,7 @@
 
 	<bean id="experiment.operator.stats.none.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 none</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 none</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -139,7 +139,7 @@
 
 	<bean id="experiment.operator.stats.none.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 none</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 none</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -154,7 +154,7 @@
 	<!--Min / Max-->
 	<bean id="experiment.operator.stats.minmax.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 minmax</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 minmax</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -168,7 +168,7 @@
 
 	<bean id="experiment.operator.stats.minmax.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 minmax</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 minmax</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -182,7 +182,7 @@
 
 	<bean id="experiment.operator.stats.minmax.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 minmax</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 minmax</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -196,7 +196,7 @@
 
 	<bean id="experiment.operator.stats.minmax.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 minmax</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 minmax</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -211,7 +211,7 @@
 	<!--Linear Counting -->
 	<bean id="experiment.operator.stats.linearc.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 linearc</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 linearc</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -225,7 +225,7 @@
 
 	<bean id="experiment.operator.stats.linearc.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 linearc</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 linearc</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -239,7 +239,7 @@
 
 	<bean id="experiment.operator.stats.linearc.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 linearc</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 linearc</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -253,7 +253,7 @@
 
 	<bean id="experiment.operator.stats.linearc.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 linearc</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 linearc</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -268,7 +268,7 @@
 	<!--HyperLogLog-->
 	<bean id="experiment.operator.stats.hyperloglog.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default hyperloglog</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default hyperloglog</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -282,7 +282,7 @@
 
 	<bean id="experiment.operator.stats.hyperloglog.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 hyperloglog</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 hyperloglog</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -296,7 +296,7 @@
 
 	<bean id="experiment.operator.stats.hyperloglog.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 hyperloglog</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 hyperloglog</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -310,7 +310,7 @@
 
 	<bean id="experiment.operator.stats.hyperloglog.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 hyperloglog</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 hyperloglog</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -324,7 +324,7 @@
 
 	<bean id="experiment.operator.stats.hyperloglog.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 hyperloglog</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 hyperloglog</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -339,7 +339,7 @@
 	<!--Lossy Counting-->
 	<bean id="experiment.operator.stats.lossy.default" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default lossy</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/default lossy</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -353,7 +353,7 @@
 
 	<bean id="experiment.operator.stats.lossy.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 lossy</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 lossy</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -367,7 +367,7 @@
 
 	<bean id="experiment.operator.stats.lossy.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 lossy</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 lossy</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -381,7 +381,7 @@
 
 	<bean id="experiment.operator.stats.lossy.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 lossy</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 lossy</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -396,7 +396,7 @@
 
 	<bean id="experiment.operator.stats.lossy.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 lossy</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 lossy</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -411,7 +411,7 @@
 	<!--Count Min Sketch-->
 	<bean id="experiment.operator.stats.countmin.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 countmin</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/5 countmin</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -425,7 +425,7 @@
 
 	<bean id="experiment.operator.stats.countmin.25" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 countmin</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/25 countmin</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -439,7 +439,7 @@
 
 	<bean id="experiment.operator.stats.countmin.50" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 countmin</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/50 countmin</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -453,7 +453,7 @@
 
 	<bean id="experiment.operator.stats.countmin.100" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 countmin</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/100 countmin</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">

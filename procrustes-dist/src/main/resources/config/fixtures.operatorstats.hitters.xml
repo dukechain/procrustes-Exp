@@ -50,7 +50,7 @@
 	<!--Lossy Counting-->
 	<bean id="experiment.heavy.hitter.local" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>-v -c operator.stats.Frequency ${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/local lossy 0.05 0.01</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/local lossy 0.05 0.01</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -65,7 +65,7 @@
 	<!--Count Min Sketch-->
 	<bean id="experiment.count.distinct.hyperloglog.local.10.5" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>-v -c operator.stats.Frequency ${app.path.jobs}/operator.stats.experiments-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/local countmin 0.05 0.01</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/countD/local countmin 0.05 0.01</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
