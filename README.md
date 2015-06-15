@@ -20,7 +20,7 @@ mvn install -DskipTests
 
 ## Setup
 
-You need to configure a *Peel* distribution. Check out the *Peel* sources and do:
+You need to configure a *Procrustes* distribution. Check out the *Procrustes* sources and do:
 
 ```bash
 # create binary package
