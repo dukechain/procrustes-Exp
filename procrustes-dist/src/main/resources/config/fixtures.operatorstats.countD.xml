@@ -141,12 +141,12 @@
 		</constructor-arg>
 	</bean>
 
-	<!-- fixtures for experiment on cluster with count distinct 10^5 -->
-	<bean id="count.distinct.10.5" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+	<!-- fixtures for experiment on cluster-->
+	<bean id="count.distinct.error" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
 		<constructor-arg name="experiments">
 			<list>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="linearc"/>
+					<constructor-arg name="name" value="linearc.10.5"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = linearc
@@ -158,7 +158,7 @@
 					</constructor-arg>
 				</bean>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="hyperloglog"/>
+					<constructor-arg name="name" value="hyperloglog.10.5"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = hyperloglog
@@ -169,16 +169,8 @@
 						</value>
 					</constructor-arg>
 				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- fixtures for experiment on cluster with count distinct 10^6 -->
-	<bean id="count.distinct.10.6" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-		<constructor-arg name="experiments">
-			<list>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="linearc"/>
+					<constructor-arg name="name" value="linearc.10.6"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = linearc
@@ -190,7 +182,7 @@
 					</constructor-arg>
 				</bean>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="hyperloglog"/>
+					<constructor-arg name="name" value="hyperloglog.10.6"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = hyperloglog
@@ -201,16 +193,8 @@
 						</value>
 					</constructor-arg>
 				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- fixtures for experiment on cluster with count distinct 10^7 -->
-	<bean id="count.distinct.10.7" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-		<constructor-arg name="experiments">
-			<list>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="linearc"/>
+					<constructor-arg name="name" value="linearc.10.7"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = linearc
@@ -222,7 +206,7 @@
 					</constructor-arg>
 				</bean>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="hyperloglog"/>
+					<constructor-arg name="name" value="hyperloglog.10.7"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = hyperloglog
@@ -233,16 +217,8 @@
 						</value>
 					</constructor-arg>
 				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- fixtures for experiment on cluster with count distinct 10^8 -->
-	<bean id="count.distinct.10.8" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-		<constructor-arg name="experiments">
-			<list>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="linearc"/>
+					<constructor-arg name="name" value="linearc.10.8"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = linearc
@@ -254,7 +230,7 @@
 					</constructor-arg>
 				</bean>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="hyperloglog"/>
+					<constructor-arg name="name" value="hyperloglog.10.8"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = hyperloglog
@@ -265,16 +241,8 @@
 						</value>
 					</constructor-arg>
 				</bean>
-			</list>
-		</constructor-arg>
-	</bean>
-
-	<!-- fixtures for experiment on cluster with count distinct 10^9 -->
-	<bean id="count.distinct.10.9" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
-		<constructor-arg name="experiments">
-			<list>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="linearc"/>
+					<constructor-arg name="name" value="linearc.10.9"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = linearc
@@ -286,7 +254,7 @@
 					</constructor-arg>
 				</bean>
 				<bean parent="experiment.count.distinct">
-					<constructor-arg name="name" value="hyperloglog"/>
+					<constructor-arg name="name" value="hyperloglog.10.9"/>
 					<constructor-arg name="config">
 						<value>
 							operator.stats.algorithm = hyperloglog
