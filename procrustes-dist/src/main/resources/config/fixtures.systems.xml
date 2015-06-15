@@ -78,7 +78,7 @@
 
     <bean id="experiment.flink-0.8.0" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
         <constructor-arg name="runner" ref="flink-0.8.0"/>
-        <constructor-arg name="runs" value="1"/>
+        <constructor-arg name="runs" value="7"/>
     </bean>
 
     <bean id="experiment.flink-0.9-SNAPSHOT-tmendt" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">

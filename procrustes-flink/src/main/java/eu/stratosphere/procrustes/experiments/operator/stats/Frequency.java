@@ -44,7 +44,8 @@ public class Frequency {
                    .sum(1)
                    .filter(new CountGreaterThan(Math.round(cardinality * fraction)));
 
-        heavyHitters.writeAsCsv("/home/tamara/Desktop/out");
+        heavyHitters.printToErr();
+        // heavyHitters.writeAsCsv("/home/tamara/Desktop/out");
 
         JobExecutionResult result = env.execute("Heavy Hitters Experiment");
 
