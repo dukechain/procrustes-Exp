@@ -8,20 +8,6 @@
 	<import resource="fixtures.systems.xml"/>
 
 	<!--************************************************************************
-    * Data Sets -> Number of nodes and distribution determines the sets
-    *************************************************************************-->
-	<bean id="dataset.heavy.hitter.local" parent="dataset.generated.hdfs-2">
-		<constructor-arg name="src" ref="datagen.spark.heavy.hitter.local"/>
-		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/heavyHitter"/>
-	</bean>
-
-
-	<bean id="dataset.heavy.hitter" parent="dataset.generated.hdfs-2">
-		<constructor-arg name="src" ref="datagen.spark.heavy.hitter"/>
-		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/countD/heavyHitter"/>
-	</bean>
-
-	<!--************************************************************************
     * Experiments
     *************************************************************************-->
 	<!-- Experiment output -->
@@ -31,61 +17,13 @@
 
 	<!--Local Experiments-->
 	<!--Lossy Counting-->
-	<bean id="experiment.heavy.hitter.lossy.local" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+	<bean id="experiment.heavy.hitter" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
 		<constructor-arg name="command">
-			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/heavyHitter lossy 400000 ${system.default.config.parallelism.total} 0.01</value>
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/${datagen.path} ${operator.stats.algorithm} ${operator.stats.cardinality} ${degree.of.parallelism} ${operator.stats.error}</value>
 		</constructor-arg>
 		<constructor-arg name="input">
 			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.heavy.hitter.local"/>
-			</set>
-		</constructor-arg>
-		<constructor-arg name="output">
-			<ref bean="experiment.output.hdfs.heavy.hitter"/>
-		</constructor-arg>
-	</bean>
-
-	<!--Count Min Sketch-->
-	<bean id="experiment.heavy.hitter.countmin.local" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
-		<constructor-arg name="command">
-			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/heavyHitter countmin 400000 ${system.default.config.parallelism.total} 0.01</value>
-		</constructor-arg>
-		<constructor-arg name="input">
-			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.heavy.hitter.local"/>
-			</set>
-		</constructor-arg>
-		<constructor-arg name="output">
-			<ref bean="experiment.output.hdfs.heavy.hitter"/>
-		</constructor-arg>
-	</bean>
-
-	<!--Cluster experiments-->
-
-	<!--Error = 0.01-->
-	<!--Lossy Counting-->
-	<bean id="experiment.heavy.hitter.lossy" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
-		<constructor-arg name="command">
-			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/heavyHitter lossy ${system.default.config.parallelism.total} 0.01</value>
-		</constructor-arg>
-		<constructor-arg name="input">
-			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.heavy.hitter"/>
-			</set>
-		</constructor-arg>
-		<constructor-arg name="output">
-			<ref bean="experiment.output.hdfs.heavy.hitter"/>
-		</constructor-arg>
-	</bean>
-
-	<!--Count Min Sketch-->
-	<bean id="experiment.heavy.hitter.countmin" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
-		<constructor-arg name="command">
-			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/heavyHitter countmin ${system.default.config.parallelism.total} 0.01</value>
-		</constructor-arg>
-		<constructor-arg name="input">
-			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
-				<ref bean="dataset.heavy.hitter"/>
+				<ref bean="dataset.int.pareto"/>
 			</set>
 		</constructor-arg>
 		<constructor-arg name="output">
@@ -100,16 +38,32 @@
 	<bean id="heavy.hitter.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
 		<constructor-arg name="experiments">
 			<list>
-				<bean parent="experiment.heavy.hitter.lossy.local">
+				<bean parent="experiment.heavy.hitter">
 					<constructor-arg name="name" value="lossy"/>
 					<constructor-arg name="config">
-						<value/>
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitters/local
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
 					</constructor-arg>
 				</bean>
-				<bean parent="experiment.heavy.hitter.countmin.local">
+				<bean parent="experiment.heavy.hitter">
 					<constructor-arg name="name" value="countmin"/>
 					<constructor-arg name="config">
-						<value/>
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitters/local
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
 					</constructor-arg>
 				</bean>
 			</list>
