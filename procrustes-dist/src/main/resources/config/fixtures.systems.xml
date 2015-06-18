@@ -44,6 +44,16 @@
     <bean id="flink-0.9-SNAPSHOT-tmendt" parent="flink">
         <constructor-arg name="version" value="0.9-SNAPSHOT"/>
     </bean>
+    
+    <!-- Flink (version 0.9-SNAPSHOT-tmendt) -->
+    <bean id="flink-0.9-SNAPSHOT-mholzemer" parent="flink">
+        <constructor-arg name="version" value="0.9-SNAPSHOT"/>
+    </bean>
+    
+    <bean id="flink-0.9-SNAPSHOT-mholzemer-reset" parent="flink">
+        <constructor-arg name="lifespan" value="JOB"/>
+        <constructor-arg name="version" value="0.9-SNAPSHOT"/>
+    </bean>
 
     <!-- Spark (overridden spark bean that depends on 'hdfs-2' -->
     <bean id="spark" class="eu.stratosphere.peel.extensions.spark.beans.system.Spark" parent="system" abstract="true">
@@ -83,7 +93,17 @@
 
     <bean id="experiment.flink-0.9-SNAPSHOT-tmendt" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
         <constructor-arg name="runner" ref="flink-0.9-SNAPSHOT-tmendt"/>
-        <constructor-arg name="runs" value="7"/>
+        <constructor-arg name="runs" value="1"/>
+    </bean>
+    
+    <bean id="experiment.flink-0.9-SNAPSHOT-mholzemer" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
+        <constructor-arg name="runner" ref="flink-0.9-SNAPSHOT-mholzemer"/>
+        <constructor-arg name="runs" value="2"/>
+    </bean>
+    
+    <bean id="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperimentKiller" abstract="true">
+        <constructor-arg name="runner" ref="flink-0.9-SNAPSHOT-mholzemer-reset"/>
+        <constructor-arg name="runs" value="2"/>
     </bean>
 
     <bean id="experiment.spark-1.1.0" class="eu.stratosphere.peel.extensions.spark.beans.experiment.SparkExperiment" abstract="true">
