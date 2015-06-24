@@ -21,13 +21,14 @@ import java.util.Collection;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.ReduceFunction;
 import org.apache.flink.api.common.functions.RichMapFunction;
-import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFields;
-import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFields;
 import org.apache.flink.api.java.operators.IterativeDataSet;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
+import org.apache.flink.configuration.Configuration;
 
 /**
  * This example implements a basic K-Means clustering algorithm.
@@ -139,65 +140,66 @@ public class KMeansCheckpoint4 {
     /**
      * A simple two-dimensional point.
      */
-    public static class Point implements Serializable {
-
-        public double x, y;
+    public static class Point extends Tuple3<Double, Double, Double> implements Serializable {
 
         public Point() {}
 
-        public Point(double x, double y) {
-            this.x = x;
-            this.y = y;
+        public Point(double x, double y, double z) {
+            this.f0 = x;
+            this.f1 = y;
+            this.f2 = z;
         }
 
         public Point add(Point other) {
-            x += other.x;
-            y += other.y;
+            f0 += other.f0;
+            f1 += other.f1;
+            f2 += other.f2;
             return this;
         }
 
         public Point div(long val) {
-            x /= val;
-            y /= val;
+            f0 /= val;
+            f1 /= val;
+            f2 /= val;
             return this;
         }
 
         public double euclideanDistance(Point other) {
-            return Math.sqrt((x - other.x) * (x - other.x) + (y - other.y) * (y - other.y));
+            return Math.sqrt((f0 - other.f0) * (f0 - other.f0) + (f1 - other.f1) * (f1 - other.f1) + (f2 - other.f2) * (f2 - other.f2));
         }
 
         public void clear() {
-            x = y = 0.0;
+            f0 = f1 = f2 = 0.0;
         }
 
         @Override
         public String toString() {
-            return x + " " + y;
+            return f0 + " " + f1 + " " + f2;
         }
     }
 
     /**
      * A simple two-dimensional centroid, basically a point with an ID.
      */
-    public static class Centroid extends Point {
-
-        public int id;
+    public static class Centroid extends Tuple4<Integer, Double, Double, Double> {
 
         public Centroid() {}
 
-        public Centroid(int id, double x, double y) {
-            super(x, y);
-            this.id = id;
+        public Centroid(int id, double x, double y, double z) {
+            super(id, x, y, z);
         }
 
         public Centroid(int id, Point p) {
-            super(p.x, p.y);
-            this.id = id;
+            super(id, p.f0, p.f1, p.f2);
         }
 
         @Override
         public String toString() {
-            return id + " " + super.toString();
+            return f0 + " " + super.toString();
+        }
+
+        public double euclideanDistance(Point other) {
+            return Math.sqrt((f0 - other.f0) * (f0 - other.f0) + (f1 - other.f1) * (f1 - other.f1) + (f2 - other.f2) * (f2 - other.f2));
         }
     }
 
@@ -206,27 +208,27 @@ public class KMeansCheckpoint4 {
     // *************************************************************************
 
     /** Converts a Tuple2<Double,Double> into a Point. */
-    @ForwardedFields("0->x; 1->y")
-    public static final class TuplePointConverter implements MapFunction<Tuple2<Double, Double>, Point> {
+
+    public static final class TuplePointConverter implements MapFunction<Tuple3<Double, Double, Double>, Point> {
 
         @Override
-        public Point map(Tuple2<Double, Double> t) throws Exception {
-            return new Point(t.f0, t.f1);
+        public Point map(Tuple3<Double, Double, Double> t) throws Exception {
+            return new Point(t.f0, t.f1, t.f2);
         }
     }
 
     /** Converts a Tuple3<Integer, Double,Double> into a Centroid. */
-    @ForwardedFields("0->id; 1->x; 2->y")
-    public static final class TupleCentroidConverter implements MapFunction<Tuple3<Integer, Double, Double>, Centroid> {
+
+    public static final class TupleCentroidConverter implements MapFunction<Tuple4<Integer, Double, Double, Double>, Centroid> {
 
         @Override
-        public Centroid map(Tuple3<Integer, Double, Double> t) throws Exception {
-            return new Centroid(t.f0, t.f1, t.f2);
+        public Centroid map(Tuple4<Integer, Double, Double, Double> t) throws Exception {
+            return new Centroid(t.f0, t.f1, t.f2, t.f3);
         }
     }
 
     /** Determines the closest cluster center for a data point. */
-    @ForwardedFields("*->1")
+
     public static final class SelectNearestCenter extends RichMapFunction<Point, Tuple2<Integer, Point>> {
 
         private Collection<Centroid> centroids;
@@ -246,12 +248,12 @@ public class KMeansCheckpoint4 {
             // check all cluster centers
             for (Centroid centroid : centroids) {
                 // compute distance
-                double distance = p.euclideanDistance(centroid);
+                double distance = centroid.euclideanDistance(p);
 
                 // update nearest cluster if necessary
                 if (distance < minDistance) {
                     minDistance = distance;
-                    closestCentroidId = centroid.id;
+                    closestCentroidId = centroid.f0;
                 }
             }
 
@@ -261,7 +263,7 @@ public class KMeansCheckpoint4 {
     }
 
     /** Appends a count variable to the tuple. */
-    @ForwardedFields("f0;f1")
+
     public static final class CountAppender implements MapFunction<Tuple2<Integer, Point>, Tuple3<Integer, Point, Long>> {
 
         @Override
@@ -271,7 +273,7 @@ public class KMeansCheckpoint4 {
     }
 
     /** Sums and counts point coordinates. */
-    @ForwardedFields("0")
+
     public static final class CentroidAccumulator implements ReduceFunction<Tuple3<Integer, Point, Long>> {
 
         @Override
@@ -281,7 +283,6 @@ public class KMeansCheckpoint4 {
     }
 
     /** Computes new centroid from coordinate sum and count of points. */
-    @ForwardedFields("0->id")
     public static final class CentroidAverager implements MapFunction<Tuple3<Integer, Point, Long>, Centroid> {
 
         @Override
@@ -331,17 +332,17 @@ public class KMeansCheckpoint4 {
     private static DataSet<Point> getPointDataSet(ExecutionEnvironment env) {
         // read points from CSV file
         return env.readCsvFile(pointsPath)
-                  .fieldDelimiter(" ")
-                  .includeFields(true, true)
-                  .types(Double.class, Double.class)
+                  .fieldDelimiter(",")
+                  .includeFields(false, false, true, true, true)
+                  .types(Double.class, Double.class, Double.class)
                   .map(new TuplePointConverter());
     }
 
     private static DataSet<Centroid> getCentroidDataSet(ExecutionEnvironment env) {
         return env.readCsvFile(centersPath)
-                  .fieldDelimiter(" ")
-                  .includeFields(true, true, true)
-                  .types(Integer.class, Double.class, Double.class)
+                  .fieldDelimiter(",")
+                  .includeFields(true, false, true, true, true)
+                  .types(Integer.class, Double.class, Double.class, Double.class)
                   .map(new TupleCentroidConverter());
     }
 

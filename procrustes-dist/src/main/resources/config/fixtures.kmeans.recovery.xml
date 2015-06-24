@@ -49,7 +49,7 @@
     <!-- k-means experiment (flink) -->
     <bean id="experiment.flink.kmeans" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
         <constructor-arg name="command">
-            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 5</value>
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -65,7 +65,7 @@
     <!-- k-means experiment (flink) -->
     <bean id="experiment.flink.kmeans.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
         <constructor-arg name="command">
-            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 5</value>
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -81,7 +81,39 @@
         <!-- k-means experiment (flink, checkpoint interval 1) -->
     <bean id="experiment.flink.kmeans1" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
         <constructor-arg name="command">
-            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint1 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 5</value>
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint1 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+         <!-- k-means experiment (flink, checkpoint interval 1) -->
+    <bean id="experiment.flink.kmeans1.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint1 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+                <!-- k-means experiment (flink, checkpoint interval 4) -->
+    <bean id="experiment.flink.kmeans4" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint4 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -95,9 +127,9 @@
     </bean>
     
             <!-- k-means experiment (flink, checkpoint interval 4) -->
-    <bean id="experiment.flink.kmeans4" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+    <bean id="experiment.flink.kmeans4.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
         <constructor-arg name="command">
-            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint4 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 5</value>
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeansCheckpoint4 ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10</value>
         </constructor-arg>
         <constructor-arg name="inputs">
             <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
@@ -109,7 +141,6 @@
             <ref bean="experiment.output.hdfs.kmeans"/>
         </constructor-arg>
     </bean>
-    
 
     <!--************************************************************************
     * Fixtures
@@ -139,6 +170,18 @@
                 </bean>
                 <bean parent="experiment.flink.kmeans4">
                     <constructor-arg name="name" value="kmeans.flink.single-run-chpt4"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans1">
+                    <constructor-arg name="name" value="kmeans.flink.single-run-chpt1-recov"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans4">
+                    <constructor-arg name="name" value="kmeans.flink.single-run-chpt4-recov"/>
                     <constructor-arg name="config">
                         <value/>
                     </constructor-arg>

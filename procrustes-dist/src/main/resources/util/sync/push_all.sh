@@ -26,5 +26,6 @@ ssh -l ${host_user} ${host_name} "find ${host_dest} -type f | xargs -I{} chown $
 # make sure that the files are accessible by other members of the group
 echo ""
 echo "Adapting group rights of remote files."
-ssh -l ${host_user} ${host_name} "find ${host_dest} -type d | xargs -I{} chmod g+w {}" > /dev/null 2> /dev/null
-ssh -l ${host_user} ${host_name} "find ${host_dest} -type f | xargs -I{} chmod g+w {}" > /dev/null 2> /dev/null
+ssh -l ${host_user} ${host_name} "find ${host_dest} -type d | xargs -I{} chmod g+rx {}" > /dev/null 2> /dev/null
+ssh -l ${host_user} ${host_name} "find ${host_dest} -type f | xargs -I{} chmod g+rx {}" > /dev/null 2> /dev/null
+ssh -l ${host_user} ${host_name} "find ${host_dest} -type f | xargs -I{} chmod +x {}" > /dev/null 2> /dev/null

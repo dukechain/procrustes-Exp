@@ -12,8 +12,12 @@
     Heavy Hitter Fixtures 
     <import resource="fixtures.operatorstats.hitters.xml"/>
     
-    Heavy Hitter Fixtures -->
+    -->
     <import resource="fixtures.kmeans.recovery.xml"/>
+    
+    <import resource="fixtures.concomp.recovery.xml"/>
+    
+    <import resource="fixtures.labelprop.recovery.xml"/>
 
 
 </beans>
