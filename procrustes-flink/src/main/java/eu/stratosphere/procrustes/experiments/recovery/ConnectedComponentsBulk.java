@@ -20,6 +20,7 @@ import org.apache.flink.api.common.ProgramDescription;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint;
 import org.apache.flink.api.java.aggregation.Aggregations;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFields;
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsFirst;
@@ -98,10 +99,19 @@ public class ConnectedComponentsBulk implements ProgramDescription {
         // open a delta iteration
         IterativeDataSet<Tuple2<Long, Long>> iteration = verticesWithInitialId.iterate(maxIterations);
 
+        if (checkpointInterval > 0) {
+            iteration.setCheckpointInterval(checkpointInterval);
+        }
+
         // apply the step logic: join with the edges, select the minimum neighbor, update if the
         // component of the candidate is smaller
         DataSet<Tuple2<Long, Long>> changes =
-                iteration.join(edges).where(0).equalTo(0).with(new NeighborWithComponentIDJoin()).groupBy(0).aggregate(Aggregations.MIN, 1);
+                iteration.join(edges, JoinHint.REPARTITION_SORT_MERGE)
+                         .where(0)
+                         .equalTo(0)
+                         .with(new NeighborWithComponentIDJoin())
+                         .groupBy(0)
+                         .aggregate(Aggregations.MIN, 1);
 
         // close the delta iteration (delta and new workset are identical)
         DataSet<Tuple2<Long, Long>> result = iteration.closeWith(changes);
@@ -184,16 +194,19 @@ public class ConnectedComponentsBulk implements ProgramDescription {
 
     private static int maxIterations = 10;
 
+    private static int checkpointInterval = 0;
+
     private static boolean parseParameters(String[] programArguments) {
 
         if (programArguments.length > 0) {
             // parse input arguments
             fileOutput = true;
-            if (programArguments.length == 3) {
+            if (programArguments.length == 4) {
                 verticesPath = programArguments[0];
                 edgesPath = programArguments[0];
                 outputPath = programArguments[1];
                 maxIterations = Integer.parseInt(programArguments[2]);
+                checkpointInterval = Integer.parseInt(programArguments[3]);
             } else {
                 System.err.println("Usage: ConnectedComponents <input path> <result path> <max number of iterations>");
                 return false;
@@ -212,9 +225,15 @@ public class ConnectedComponentsBulk implements ProgramDescription {
         return env.readCsvFile(verticesPath)
                   .fieldDelimiter("\t")
                   .ignoreComments("#")
+                  .ignoreInvalidLines()
                   .includeFields(true, false)
                   .types(Long.class)
-                  .union(env.readCsvFile(verticesPath).fieldDelimiter("\t").ignoreComments("#").includeFields(false, true).types(Long.class))
+                  .union(env.readCsvFile(verticesPath)
+                            .fieldDelimiter("\t")
+                            .ignoreComments("#")
+                            .ignoreInvalidLines()
+                            .includeFields(false, true)
+                            .types(Long.class))
                   .distinct(0)
                   .map(new MapFunction<Tuple1<Long>, Long>() {
 
@@ -226,7 +245,7 @@ public class ConnectedComponentsBulk implements ProgramDescription {
 
     private static DataSet<Tuple2<Long, Long>> getEdgeDataSet(ExecutionEnvironment env) {
 
-        return env.readCsvFile(edgesPath).fieldDelimiter("\t").ignoreComments("#").types(Long.class, Long.class);
+        return env.readCsvFile(edgesPath).fieldDelimiter("\t").ignoreComments("#").ignoreInvalidLines().types(Long.class, Long.class);
     }
 
 

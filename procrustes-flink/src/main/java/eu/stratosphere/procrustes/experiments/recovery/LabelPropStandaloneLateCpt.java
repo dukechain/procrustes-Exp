@@ -24,15 +24,20 @@ import java.util.Map.Entry;
 import org.apache.flink.api.common.ProgramDescription;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.functions.RichCoGroupFunction;
+import org.apache.flink.api.common.io.FileOutputFormat;
+import org.apache.flink.api.common.io.FileOutputFormat.IterationWriteMode;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.io.CsvOutputFormat;
 import org.apache.flink.api.java.operators.CoGroupOperator;
 import org.apache.flink.api.java.operators.IterativeDataSet;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.core.fs.Path;
 import org.apache.flink.types.NullValue;
 import org.apache.flink.util.Collector;
+import org.apache.flink.util.RecoveryUtil;
 
 /**
  * This example uses the label propagation algorithm to detect communities by propagating labels.
@@ -48,7 +53,7 @@ import org.apache.flink.util.Collector;
  * 
  * If no arguments are provided, the example runs with a random graph of 100 vertices.
  */
-public class LabelPropStandalone implements ProgramDescription {
+public class LabelPropStandaloneLateCpt implements ProgramDescription {
 
     public static void main(String[] args) throws Exception {
 
@@ -66,9 +71,9 @@ public class LabelPropStandalone implements ProgramDescription {
 
         IterativeDataSet<Vertex<Long, Long>> iteration = vertices.iterate(maxIterations);
 
-        if (checkpointInterval > 0) {
-            iteration.setCheckpointInterval(checkpointInterval);
-        }
+        // if (checkpointInterval > 0) {
+        // iteration.setCheckpointInterval(checkpointInterval);
+        // }
 
         // iteration.setCheckpointInterval(4);
 
@@ -85,7 +90,21 @@ public class LabelPropStandalone implements ProgramDescription {
         // configure coGroup update function with name and broadcast variables
         updates = updates.name("Vertex State Updates");
 
-        iteration.closeWith(updates).writeAsCsv(outputPath, "\n", ",");
+        FileOutputFormat<Vertex<Long, Long>> outputFormat =
+                new CsvOutputFormat(new Path(RecoveryUtil.getCheckpointPath() + "checkpoint"),
+                                    CsvOutputFormat.DEFAULT_LINE_DELIMITER,
+                                    CsvOutputFormat.DEFAULT_FIELD_DELIMITER);
+        outputFormat.setIterationWriteMode(new IterationWriteMode(10, checkpointInterval));
+
+        updates.output(outputFormat);
+
+        iteration.closeWith(updates.map(new MapFunction<Vertex<Long, Long>, Vertex<Long, Long>>() {
+
+            @Override
+            public Vertex<Long, Long> map(Vertex<Long, Long> value) throws Exception {
+                return value;
+            }
+        })).writeAsCsv(outputPath, "\n", ",");
 
         // Execute the program
         env.execute("Label Propagation Example");

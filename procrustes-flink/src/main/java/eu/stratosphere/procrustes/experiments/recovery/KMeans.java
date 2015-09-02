@@ -100,6 +100,10 @@ public class KMeans {
         // set number of bulk iterations for KMeans algorithm
         IterativeDataSet<Centroid> loop = centroids.iterate(numIterations);
 
+        if (checkpointInterval > 0) {
+            loop.setCheckpointInterval(checkpointInterval);
+        }
+
         DataSet<Centroid> newCentroids = points
         // compute closest centroid for each point
         .map(new SelectNearestCenter())
@@ -307,16 +311,19 @@ public class KMeans {
 
     private static int numIterations = 10;
 
+    private static int checkpointInterval = 0;
+
     private static boolean parseParameters(String[] programArguments) {
 
         if (programArguments.length > 0) {
             // parse input arguments
             fileOutput = true;
-            if (programArguments.length == 4) {
+            if (programArguments.length == 5) {
                 pointsPath = programArguments[0];
                 centersPath = programArguments[1];
                 outputPath = programArguments[2];
                 numIterations = Integer.parseInt(programArguments[3]);
+                checkpointInterval = Integer.parseInt(programArguments[4]);
             } else {
                 System.err.println("Usage: KMeans <points path> <centers path> <result path> <num iterations>");
                 return false;
@@ -347,5 +354,4 @@ public class KMeans {
                   .types(Integer.class, Double.class, Double.class, Double.class)
                   .map(new TupleCentroidConverter());
     }
-
 }

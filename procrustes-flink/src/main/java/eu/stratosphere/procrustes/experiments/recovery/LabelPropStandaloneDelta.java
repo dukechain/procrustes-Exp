@@ -27,6 +27,7 @@ import org.apache.flink.api.common.functions.RichCoGroupFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.operators.CoGroupOperator;
+import org.apache.flink.api.java.operators.DeltaIteration;
 import org.apache.flink.api.java.operators.IterativeDataSet;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
@@ -48,7 +49,7 @@ import org.apache.flink.util.Collector;
  * 
  * If no arguments are provided, the example runs with a random graph of 100 vertices.
  */
-public class LabelPropStandalone implements ProgramDescription {
+public class LabelPropStandaloneDelta implements ProgramDescription {
 
     public static void main(String[] args) throws Exception {
 
@@ -62,9 +63,10 @@ public class LabelPropStandalone implements ProgramDescription {
 
         // Set up the graph
         DataSet<Vertex<Long, Long>> vertices = getVertexDataSet(env);
+        DataSet<Vertex<Long, Long>> vertices2 = getVertexDataSet(env);
         DataSet<Edge<Long, NullValue>> edges = getEdgeDataSet(env);
 
-        IterativeDataSet<Vertex<Long, Long>> iteration = vertices.iterate(maxIterations);
+        DeltaIteration<Vertex<Long, Long>, Vertex<Long, Long>> iteration = vertices.iterateDelta(vertices2, maxIterations, new int[] {0});
 
         if (checkpointInterval > 0) {
             iteration.setCheckpointInterval(checkpointInterval);
@@ -75,17 +77,17 @@ public class LabelPropStandalone implements ProgramDescription {
         // build the messaging function (co group)
         CoGroupOperator<Edge<Long, NullValue>, Vertex<Long, Long>, Tuple2<Long, Long>> messages;
         MessagingUdfWithEdgeValues messenger = new MessagingUdfWithEdgeValues();
-        messages = edges.coGroup(iteration).where(0).equalTo(0).with(messenger);
+        messages = edges.coGroup(iteration.getWorkset()).where(0).equalTo(0).with(messenger);
 
         VertexUpdateUdf updateUdf = new VertexUpdateUdf();
 
         // build the update function (co group)
-        CoGroupOperator<?, ?, Vertex<Long, Long>> updates = messages.coGroup(iteration).where(0).equalTo(0).with(updateUdf);
+        CoGroupOperator<?, ?, Vertex<Long, Long>> updates = messages.coGroup(iteration.getSolutionSet()).where(0).equalTo(0).with(updateUdf);
 
         // configure coGroup update function with name and broadcast variables
         updates = updates.name("Vertex State Updates");
 
-        iteration.closeWith(updates).writeAsCsv(outputPath, "\n", ",");
+        iteration.closeWith(updates, updates).writeAsCsv(outputPath, "\n", ",");
 
         // Execute the program
         env.execute("Label Propagation Example");
@@ -128,15 +130,9 @@ public class LabelPropStandalone implements ProgramDescription {
         return env.readCsvFile(vertexInputPath)
                   .fieldDelimiter("\t")
                   .ignoreComments("#")
-                  .ignoreInvalidLines()
                   .includeFields(true, false)
                   .types(Long.class)
-                  .union(env.readCsvFile(vertexInputPath)
-                            .fieldDelimiter("\t")
-                            .ignoreComments("#")
-                            .ignoreInvalidLines()
-                            .includeFields(false, true)
-                            .types(Long.class))
+                  .union(env.readCsvFile(vertexInputPath).fieldDelimiter("\t").ignoreComments("#").includeFields(false, true).types(Long.class))
                   .distinct(0)
                   .map(new MapFunction<Tuple1<Long>, Vertex<Long, Long>>() {
 
@@ -152,7 +148,6 @@ public class LabelPropStandalone implements ProgramDescription {
         return env.readCsvFile(edgeInputPath)
                   .fieldDelimiter("\t")
                   .ignoreComments("#")
-                  .ignoreInvalidLines()
                   .types(Long.class, Long.class)
                   .map(new MapFunction<Tuple2<Long, Long>, Edge<Long, NullValue>>() {
 
@@ -206,6 +201,8 @@ public class LabelPropStandalone implements ProgramDescription {
             if (vertexIter.hasNext()) {
                 Vertex<Long, Long> vertexState = vertexIter.next();
 
+                // System.out.println("VU " + vertexState);
+
                 Iterator<Tuple2<Long, Long>> messagesIter = messages.iterator();
 
                 Map<Long, Long> labelsWithFrequencies = new HashMap<Long, Long>();
@@ -248,7 +245,8 @@ public class LabelPropStandalone implements ProgramDescription {
                         Tuple2<Long, Long> next = messageIter.next();
                         message = "Target vertex '" + next.f0 + "' does not exist!.";
                     } catch (Throwable t) {}
-                    throw new Exception(message);
+                    // throw new Exception(message);
+                    System.out.println(message);
                 } else {
                     throw new Exception();
                 }

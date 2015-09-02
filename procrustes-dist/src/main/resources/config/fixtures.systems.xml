@@ -98,12 +98,12 @@
     
     <bean id="experiment.flink-0.9-SNAPSHOT-mholzemer" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperiment" abstract="true">
         <constructor-arg name="runner" ref="flink-0.9-SNAPSHOT-mholzemer"/>
-        <constructor-arg name="runs" value="2"/>
+        <constructor-arg name="runs" value="3"/>
     </bean>
     
     <bean id="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" class="eu.stratosphere.peel.extensions.flink.beans.experiment.FlinkExperimentKiller" abstract="true">
         <constructor-arg name="runner" ref="flink-0.9-SNAPSHOT-mholzemer-reset"/>
-        <constructor-arg name="runs" value="2"/>
+        <constructor-arg name="runs" value="3"/>
     </bean>
 
     <bean id="experiment.spark-1.1.0" class="eu.stratosphere.peel.extensions.spark.beans.experiment.SparkExperiment" abstract="true">

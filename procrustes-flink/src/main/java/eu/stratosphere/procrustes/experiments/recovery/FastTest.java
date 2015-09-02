@@ -17,7 +17,6 @@
 package eu.stratosphere.procrustes.experiments.recovery;
 
 import org.apache.flink.api.common.ProgramDescription;
-import org.apache.flink.api.common.functions.FlatJoinFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.functions.MapFunction;
@@ -28,9 +27,10 @@ import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsFir
 import org.apache.flink.api.java.functions.FunctionAnnotation.ForwardedFieldsSecond;
 import org.apache.flink.api.java.tuple.Tuple1;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.util.Collector;
 import org.apache.flink.api.java.DataSet;
-import org.apache.flink.api.java.operators.DeltaIteration;
+import org.apache.flink.api.java.operators.IterativeDataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 
 /**
@@ -75,7 +75,7 @@ import org.apache.flink.api.java.ExecutionEnvironment;
  * </ul>
  */
 @SuppressWarnings("serial")
-public class ConnectedComponents implements ProgramDescription {
+public class FastTest implements ProgramDescription {
 
     // *************************************************************************
     // PROGRAM
@@ -94,34 +94,31 @@ public class ConnectedComponents implements ProgramDescription {
         DataSet<Long> vertices = getVertexDataSet(env);
         DataSet<Tuple2<Long, Long>> edges = getEdgeDataSet(env).flatMap(new UndirectEdge());
 
-        // assign the initial components (equal to the vertex id)
-        DataSet<Tuple2<Long, Long>> verticesWithInitialId = vertices.map(new DuplicateValue<Long>());
+        DataSet<Tuple3<Long, Long, Long>> edgesWithInitialId = edges.map(new MapFunction<Tuple2<Long, Long>, Tuple3<Long, Long, Long>>() {
 
-        // open a delta iteration
-        DeltaIteration<Tuple2<Long, Long>, Tuple2<Long, Long>> iteration =
-                verticesWithInitialId.iterateDelta(verticesWithInitialId, maxIterations, 0);
+            @Override
+            public Tuple3<Long, Long, Long> map(Tuple2<Long, Long> value) throws Exception {
+                return new Tuple3<Long, Long, Long>(value.f0, value.f1, value.f0);
+            }
+        });
+        
+        IterativeDataSet<Tuple3<Long, Long, Long>> iteration = edgesWithInitialId.iterate(maxIterations);
+        DataSet<Tuple3<Long, Long, Long>> changes = iteration.map(new MapFunction<Tuple3<Long,Long,Long>, Tuple3<Long,Long,Long>>() {
+
+			@Override
+			public Tuple3<Long, Long, Long> map(Tuple3<Long, Long, Long> value)
+					throws Exception {
+				value.f2 += 1;
+				return value;
+			}
+		});
 
         if (checkpointInterval > 0) {
             iteration.setCheckpointInterval(checkpointInterval);
         }
 
-        // apply the step logic: join with the edges, select the minimum neighbor, update if the
-        // component of the candidate is smaller
-        DataSet<Tuple2<Long, Long>> changes =
-                iteration.getWorkset()
-                         .join(edges, JoinHint.REPARTITION_SORT_MERGE)
-                         .where(0)
-                         .equalTo(0)
-                         .with(new NeighborWithComponentIDJoin())
-                         .groupBy(0)
-                         .aggregate(Aggregations.MIN, 1)
-                         .join(iteration.getSolutionSet())
-                         .where(0)
-                         .equalTo(0)
-                         .with(new ComponentIdFilter());
-
         // close the delta iteration (delta and new workset are identical)
-        DataSet<Tuple2<Long, Long>> result = iteration.closeWith(changes, changes);
+        DataSet<Tuple3<Long, Long, Long>> result = iteration.closeWith(changes);
 
         // emit result
         if (fileOutput) {
@@ -182,25 +179,6 @@ public class ConnectedComponents implements ProgramDescription {
         }
     }
 
-
-
-    @ForwardedFieldsFirst("*")
-    public static final class ComponentIdFilter implements FlatJoinFunction<Tuple2<Long, Long>, Tuple2<Long, Long>, Tuple2<Long, Long>> {
-
-        @Override
-        public void join(Tuple2<Long, Long> candidate, Tuple2<Long, Long> old, Collector<Tuple2<Long, Long>> out) {
-            if (old == null) {
-                // throw new RuntimeException("Error joining solution set " + candidate);
-                System.out.println("Error joining solution set " + candidate);
-            }
-            if (candidate.f1 < old.f1) {
-                out.collect(candidate);
-            }
-        }
-    }
-
-
-
     @Override
     public String getDescription() {
         return "Parameters: <vertices-path> <edges-path> <result-path> <max-number-of-iterations>";
@@ -251,9 +229,15 @@ public class ConnectedComponents implements ProgramDescription {
         return env.readCsvFile(verticesPath)
                   .fieldDelimiter("\t")
                   .ignoreComments("#")
+                  .ignoreInvalidLines()
                   .includeFields(true, false)
                   .types(Long.class)
-                  .union(env.readCsvFile(verticesPath).fieldDelimiter("\t").ignoreComments("#").includeFields(false, true).types(Long.class))
+                  .union(env.readCsvFile(verticesPath)
+                            .fieldDelimiter("\t")
+                            .ignoreComments("#")
+                            .ignoreInvalidLines()
+                            .includeFields(false, true)
+                            .types(Long.class))
                   .distinct(0)
                   .map(new MapFunction<Tuple1<Long>, Long>() {
 
@@ -265,7 +249,7 @@ public class ConnectedComponents implements ProgramDescription {
 
     private static DataSet<Tuple2<Long, Long>> getEdgeDataSet(ExecutionEnvironment env) {
 
-        return env.readCsvFile(edgesPath).fieldDelimiter("\t").ignoreComments("#").types(Long.class, Long.class);
+        return env.readCsvFile(edgesPath).fieldDelimiter("\t").ignoreComments("#").ignoreInvalidLines().types(Long.class, Long.class);
     }
 
 
