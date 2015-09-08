@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Custom Systems -->
+    <import resource="fixtures.systems.xml"/>
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+    
+    <bean id="dataset.dblp" parent="dataset.static.hdfs-2">
+		<constructor-arg name="src" value="${app.path.datasets}/dblp.txt"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/dblp.txt"/>
+	</bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- k-means output -->
+    <bean id="experiment.output.hdfs.labelprop" parent="experiment.output.hdfs-2">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/labelprop"/>
+    </bean>
+
+    <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropBulk" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandalone ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 0</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+    
+            <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropBulk4" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandalone ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+    
+        <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropBulk4.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandalone ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+    
+        <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropDelta" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandaloneDelta ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 0</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+    
+            <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropDelta4" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandaloneDelta ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+    
+        <!-- labelprop experiment (flink) -->
+    <bean id="experiment.flink.labelpropDelta4.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.LabelPropStandaloneDelta ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/dblp.txt ${system.hadoop-2.path.output}/labelprop 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="input">
+        	<ref bean="dataset.dblp"/>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.labelprop"/>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+    <!-- fixtures for local development and testing -->
+    <bean id="labelprop.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="experiment.flink.labelpropBulk">
+                    <constructor-arg name="name" value="labelpropBulk.run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropBulk4">
+                    <constructor-arg name="name" value="labelpropBulk.run-chpt4"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropBulk4.recovery">
+                    <constructor-arg name="name" value="labelpropBulk.run-chpt4-recov"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropBulk4.recovery">
+                    <constructor-arg name="name" value="labelpropBulk.run-chpt4-recov-refined"/>
+                    <constructor-arg name="config">
+                        <value>
+                            system.flink.config.yaml.refined.recovery = true
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropDelta">
+                    <constructor-arg name="name" value="labelpropDelta.run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropDelta4">
+                    <constructor-arg name="name" value="labelpropDelta.run-chpt4"/>
+                    <constructor-arg name="config">
+                        <value>
+                            system.flink.config.yaml.delta.checkpoint = 4
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropDelta4.recovery">
+                    <constructor-arg name="name" value="labelpropDelta.run-chpt4-recov"/>
+                    <constructor-arg name="config">
+                        <value>
+                            system.flink.config.yaml.delta.checkpoint = 4
+                        </value>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.labelpropDelta4.recovery">
+                    <constructor-arg name="name" value="labelpropDelta.run-chpt4-recov-refined"/>
+                    <constructor-arg name="config">
+                        <value>
+                            system.flink.config.yaml.refined.recovery = true
+                            system.flink.config.yaml.delta.checkpoint = 4
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>

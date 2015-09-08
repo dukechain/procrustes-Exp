@@ -1,0 +1,252 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Custom Systems -->
+    <import resource="fixtures.systems.xml"/>
+
+    <!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
+
+    <bean id="datagen.spark.clusters" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+        <constructor-arg name="runner" ref="spark-1.3.1"/>
+        <constructor-arg name="command">
+            <value>--class eu.stratosphere.procrustes.datagen.spark.SparkClusterGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 10000 ${app.path.config}/clusters-D3-K3.csv ${system.hadoop-2.path.input}/points</value>
+        </constructor-arg>
+    </bean>
+
+    <bean id="datagen.spark.clustercenters" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+        <constructor-arg name="runner" ref="spark-1.3.1"/>
+        <constructor-arg name="command">
+            <value>--class eu.stratosphere.procrustes.datagen.spark.SparkClusterGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${system.default.config.parallelism.total} 3 ${app.path.config}/clusters-D3-K3.csv ${system.hadoop-2.path.input}/clusters</value>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Data Sets
+    *************************************************************************-->
+
+    <bean id="dataset.clusters.k3" parent="dataset.generated.hdfs-2">
+        <constructor-arg name="src" ref="datagen.spark.clusters"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/points"/>
+    </bean>
+    <bean id="dataset.clustercenters.k3" parent="dataset.generated.hdfs-2">
+        <constructor-arg name="src" ref="datagen.spark.clustercenters"/>
+        <constructor-arg name="dst" value="${system.hadoop-2.path.input}/clusters"/>
+    </bean>
+
+    <!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+
+    <!-- k-means output -->
+    <bean id="experiment.output.hdfs.kmeans" parent="experiment.output.hdfs-2">
+        <constructor-arg name="path" value="${system.hadoop-2.path.output}/kmeans"/>
+    </bean>
+
+    <!-- k-means experiment (flink) -->
+    <bean id="experiment.flink.kmeans" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 0</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+    <!-- k-means experiment (flink) -->
+    <bean id="experiment.flink.kmeans.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 0</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+        <!-- k-means experiment (flink, checkpoint interval 1) -->
+    <bean id="experiment.flink.kmeans1" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 1</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+         <!-- k-means experiment (flink, checkpoint interval 1) -->
+    <bean id="experiment.flink.kmeans1.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 1</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+                <!-- k-means experiment (flink, checkpoint interval 4) -->
+    <bean id="experiment.flink.kmeans4" parent="experiment.flink-0.9-SNAPSHOT-mholzemer" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+    
+            <!-- k-means experiment (flink, checkpoint interval 4) -->
+    <bean id="experiment.flink.kmeans4.recovery" parent="experiment.flink-0.9-SNAPSHOT-mholzemer-reset" abstract="true">
+        <constructor-arg name="command">
+            <value>-v -c eu.stratosphere.procrustes.experiments.recovery.KMeans ${app.path.jobs}/procrustes-flink-1.0.SNAPSHOT.jar ${system.hadoop-2.path.input}/points ${system.hadoop-2.path.input}/clusters ${system.hadoop-2.path.output}/kmeans 10 4</value>
+        </constructor-arg>
+        <constructor-arg name="inputs">
+            <set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+                <ref bean="dataset.clusters.k3"/>
+                <ref bean="dataset.clustercenters.k3"/>
+            </set>
+        </constructor-arg>
+        <constructor-arg name="output">
+            <ref bean="experiment.output.hdfs.kmeans"/>
+        </constructor-arg>
+    </bean>
+
+    <!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+    <!-- fixtures for local development and testing -->
+    <bean id="kmeans.default" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <bean parent="experiment.flink.kmeans">
+                    <constructor-arg name="name" value="kmeans.run"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans.recovery">
+                    <constructor-arg name="name" value="kmeans.run-recov"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans1">
+                    <constructor-arg name="name" value="kmeans.run-chpt1"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans4">
+                    <constructor-arg name="name" value="kmeans.run-chpt4"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans1">
+                    <constructor-arg name="name" value="kmeans.run-chpt1-recov"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+                <bean parent="experiment.flink.kmeans4">
+                    <constructor-arg name="name" value="kmeans.run-chpt4-recov"/>
+                    <constructor-arg name="config">
+                        <value/>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+    <!-- fixtures for wally -->
+    <bean id="kmeans.wally" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+        <constructor-arg name="experiments">
+            <list>
+                <!-- 10 nodes -->
+                <bean parent="experiment.flink.kmeans">
+                    <constructor-arg name="name" value="flink.dop80"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 3600
+                            system.default.config.slaves = ${system.default.config.wallies.010}
+                            system.default.config.parallelism.total = 80
+                            system.flink.config.yaml.parallelization.degree.default = 13
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 20 nodes -->
+                <bean parent="experiment.flink.kmeans">
+                    <constructor-arg name="name" value="flink.dop160"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 3600
+                            system.default.config.slaves = ${system.default.config.wallies.020}
+                            system.default.config.parallelism.total = 160
+                            system.flink.config.yaml.parallelization.degree.default = 26
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 40 nodes -->
+                <bean parent="experiment.flink.kmeans">
+                    <constructor-arg name="name" value="flink.dop320"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 3600
+                            system.default.config.slaves = ${system.default.config.wallies.040}
+                            system.default.config.parallelism.total = 320
+                            system.flink.config.yaml.parallelization.degree.default = 53
+                        </value>
+                    </constructor-arg>
+                </bean>
+
+                <!-- 80 nodes -->
+                <bean parent="experiment.flink.kmeans">
+                    <constructor-arg name="name" value="flink.dop640"/>
+                    <constructor-arg name="config">
+                        <value>
+                            experiment.timeout = 3600
+                            system.default.config.slaves = ${system.default.config.wallies.080}
+                            system.default.config.parallelism.total = 640
+                            system.flink.config.yaml.parallelization.degree.default = 106
+                        </value>
+                    </constructor-arg>
+                </bean>
+            </list>
+        </constructor-arg>
+    </bean>
+
+</beans>

@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans">
+
+	<!--************************************************************************
+        * Custom Systems
+        *************************************************************************-->
+	<import resource="fixtures.systems.xml"/>
+
+	<!--************************************************************************
+    * Data Generators
+    *************************************************************************-->
+	<bean id="datagen.spark.int.pareto" class="eu.stratosphere.peel.extensions.spark.beans.job.SparkJob">
+		<constructor-arg name="runner" ref="spark-1.3.1"/>
+		<constructor-arg name="command">
+			<value>--class eu.stratosphere.procrustes.datagen.spark.SparkIntGenerator ${app.path.datagens}/procrustes-datagen-1.0-SNAPSHOT.jar ${system.spark.config.defaults.spark.master} ${datagen.parallelism} ${datagen.number.tuples} "Pareto[1]" 5 ${system.hadoop-2.path.input}/operatorstats/${datagen.path} </value>
+		</constructor-arg>
+	</bean>
+
+	<!--************************************************************************
+    * Data Sets -> Number of nodes and distribution determines the sets
+    *************************************************************************-->
+	<bean id="dataset.int.pareto" parent="dataset.generated.hdfs-2">
+		<constructor-arg name="src" ref="datagen.spark.int.pareto"/>
+		<constructor-arg name="dst" value="${system.hadoop-2.path.input}/operatorstats/${datagen.path}"/>
+	</bean>
+
+	<!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+	<!-- Experiment output -->
+	<bean id="experiment.output.hdfs.operator.stats" parent="experiment.output.hdfs-2">
+		<constructor-arg name="path" value="${system.hadoop-2.path.output}/operatorstats/output"/>
+	</bean>
+
+	<bean id="operator.stats.processing" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Processing ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/${datagen.path} ${operator.stats.algorithm}</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.pareto"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.operator.stats"/>
+		</constructor-arg>
+	</bean>
+
+	<!--************************************************************************
+    * Fixtures
+    *************************************************************************-->
+
+	<!-- Fixtures for Local Testing -->
+
+	<bean id="processing.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = none
+							datagen.path = local
+							datagen.number.tuples = 4882813
+							datagen.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = minmax
+							datagen.path = local
+							datagen.number.tuples = 4882813
+							datagen.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = hyperloglog
+							datagen.path = local
+							datagen.number.tuples = 4882813
+							datagen.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							datagen.path = local
+							datagen.number.tuples = 4882813
+							datagen.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.lossy"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							datagen.path = local
+							datagen.number.tuples = 4882813
+							datagen.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for Cluster Testing -->
+
+	<!-- Fixtures for testing processing of 5Gb of data using 2 nodes-->
+	<bean id="processing.5Gb" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = none
+							datagen.path = 5
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 32
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 32
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = minmax
+							datagen.path = 5
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 32
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 32
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = hyperloglog
+							datagen.path = 5
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 32
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 32
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							datagen.path = 5
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 32
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 32
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = linearc
+							datagen.path = 5
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 32
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 32
+							system.flink.config.yaml.parallelization.degree.default = 2
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 25Gb of data using 10 nodes-->
+	<bean id="processing.25Gb" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = none
+							datagen.path = 25
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 160
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = minmax
+							datagen.path = 25
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 160
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = hyperloglog
+							datagen.path = 25
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 160
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							datagen.path = 25
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 160
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = linearc
+							datagen.path = 25
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 160
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 160
+							system.flink.config.yaml.parallelization.degree.default = 10
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 50Gb of data using 20 nodes-->
+	<bean id="processing.50Gb" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = none
+							datagen.path = 50
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 320
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = minmax
+							datagen.path = 50
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 320
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = hyperloglog
+							datagen.path = 50
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 320
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							datagen.path = 50
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 320
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = linearc
+							datagen.path = 50
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 320
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 320
+							system.flink.config.yaml.parallelization.degree.default = 20
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Fixtures for testing processing of 100Gb of data using 40 nodes-->
+	<bean id="processing.100Gb" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.none"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = none
+							datagen.path = 100
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 640
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.minmax"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = minmax
+							datagen.path = 100
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 640
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.hyperloglog"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = hyperloglog
+							datagen.path = 100
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 640
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							datagen.path = 100
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 640
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="operator.stats.processing">
+					<constructor-arg name="name" value="operator.stats.linearc"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = linearc
+							datagen.path = 100
+							datagen.number.tuples = 4882813
+							datagen.parallelism = 640
+							experiment.timeout = 1800
+							system.default.config.parallelism.total = 640
+							system.flink.config.yaml.parallelization.degree.default = 40
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+</beans>

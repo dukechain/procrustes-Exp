@@ -52,7 +52,7 @@ object Kmeans {
   private def getPointDataSet(env: ExecutionEnvironment): DataSet[Point] = {
     env.readCsvFile[(Int, Int, Double, Double, Double)](
       pointsPath,
-      fieldDelimiter = ',')
+      fieldDelimiter = ",")
       //includedFields = Array(2, 3, 4))
       .map { x => new Point(x._3, x._4, x._5)}
   }
@@ -60,7 +60,7 @@ object Kmeans {
   private def getCentroidDataSet(env: ExecutionEnvironment): DataSet[Centroid] = {
     env.readCsvFile[(Int, Int, Double, Double, Double)](
       centersPath,
-      fieldDelimiter = ',')
+      fieldDelimiter = ",")
       //includedFields = Array(0, 2, 3, 4))
       .map { x => new Centroid(x._1, x._3, x._4, x._5)}
   }

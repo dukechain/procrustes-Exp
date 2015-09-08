@@ -3,9 +3,21 @@
 <beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans"
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-    <!-- Grouping fixtures -->
-    <import resource="fixtures.grouping.xml"/>
-    <!-- KMeans fixtures -->
-    <import resource="fixtures.kmeans.xml"/>
+    <!-- Operator Stats Fixtures 
+    <import resource="fixtures.operatorstats.processing.xml"/>
+
+    Count Distinct Fixtures 
+    <import resource="fixtures.operatorstats.countD.xml"/>
+
+    Heavy Hitter Fixtures 
+    <import resource="fixtures.operatorstats.hitters.xml"/>
+    
+    -->
+    <import resource="fixtures.kmeans.recovery.xml"/>
+    
+    <import resource="fixtures.concomp.recovery.xml"/>
+    
+    <import resource="fixtures.labelprop.recovery.xml"/>
+
 
 </beans>

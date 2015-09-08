@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.springframework.org/schema/beans">
+
+	<!--************************************************************************
+    	* Custom Systems
+    	*************************************************************************-->
+	<import resource="fixtures.systems.xml"/>
+
+	<!--************************************************************************
+    * Experiments
+    *************************************************************************-->
+	<!-- Experiment output -->
+	<bean id="experiment.output.hdfs.heavy.hitter" parent="experiment.output.hdfs-2">
+		<constructor-arg name="path" value="${system.hadoop-2.path.output}/operatorstats/heavyHitter/output"/>
+	</bean>
+
+	<!--Local Experiments-->
+	<!--Lossy Counting-->
+	<bean id="experiment.heavy.hitter" parent="experiment.flink-0.9-SNAPSHOT-tmendt" abstract="true">
+		<constructor-arg name="command">
+			<value>-v -c eu.stratosphere.procrustes.experiments.operator.stats.Frequency ${app.path.jobs}/procrustes-flink-1.0-SNAPSHOT.jar ${system.hadoop-2.path.input}/operatorstats/${datagen.path} ${operator.stats.algorithm} ${operator.stats.cardinality} ${degree.of.parallelism} ${operator.stats.error}</value>
+		</constructor-arg>
+		<constructor-arg name="input">
+			<set value-type="eu.stratosphere.peel.core.beans.data.GeneratedDataSet">
+				<ref bean="dataset.int.pareto"/>
+			</set>
+		</constructor-arg>
+		<constructor-arg name="output">
+			<ref bean="experiment.output.hdfs.heavy.hitter"/>
+		</constructor-arg>
+	</bean>
+
+	<!--************************************************************************
+	* Fixtures
+	*************************************************************************-->
+	<!-- fixtures for local development and testing -->
+	<bean id="heavy.hitter.local" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="lossy"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="countmin"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- fixtures for cluster -->
+
+	<!-- Experiments varying error (measure memory use) -->
+	<bean id="heavy.hitter.memory" class="eu.stratosphere.peel.core.beans.experiment.ExperimentSuite">
+		<constructor-arg name="experiments">
+			<list>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="lossy.error.0.1"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.1
+							datagen.path = heavyHitter
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="countmin.error.0.1"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.1
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="lossy.error.0.05"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.05
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="countmin.error.0.05"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.05
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="lossy.error.0.025"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.025
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="countmin.error.0.025"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.025
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="lossy.error.0.01"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = lossy
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitters
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+				<bean parent="experiment.heavy.hitter">
+					<constructor-arg name="name" value="countmin.error.0.01"/>
+					<constructor-arg name="config">
+						<value>
+							operator.stats.algorithm = countmin
+							operator.stats.cardinality = 400000
+							operator.stats.error = 0.01
+							datagen.path = heavyHitter
+							datagen.number.tuples = 100000
+							datagen.parallelism = ${system.default.config.parallelism.total}
+							degree.of.parallelism = ${system.default.config.parallelism.total}
+						</value>
+					</constructor-arg>
+				</bean>
+			</list>
+		</constructor-arg>
+	</bean>
+
+	<!-- Experiments varying number of nodes (measure impact on error) -->
+
+
+</beans>
