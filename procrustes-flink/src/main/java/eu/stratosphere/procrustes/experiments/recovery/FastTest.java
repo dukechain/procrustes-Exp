@@ -101,17 +101,16 @@ public class FastTest implements ProgramDescription {
                 return new Tuple3<Long, Long, Long>(value.f0, value.f1, value.f0);
             }
         });
-        
-        IterativeDataSet<Tuple3<Long, Long, Long>> iteration = edgesWithInitialId.iterate(maxIterations);
-        DataSet<Tuple3<Long, Long, Long>> changes = iteration.map(new MapFunction<Tuple3<Long,Long,Long>, Tuple3<Long,Long,Long>>() {
 
-			@Override
-			public Tuple3<Long, Long, Long> map(Tuple3<Long, Long, Long> value)
-					throws Exception {
-				value.f2 += 1;
-				return value;
-			}
-		});
+        IterativeDataSet<Tuple3<Long, Long, Long>> iteration = edgesWithInitialId.iterate(maxIterations);
+        DataSet<Tuple3<Long, Long, Long>> changes = iteration.map(new MapFunction<Tuple3<Long, Long, Long>, Tuple3<Long, Long, Long>>() {
+
+            @Override
+            public Tuple3<Long, Long, Long> map(Tuple3<Long, Long, Long> value) throws Exception {
+                value.f2 += 1;
+                return value;
+            }
+        });
 
         if (checkpointInterval > 0) {
             iteration.setCheckpointInterval(checkpointInterval);
